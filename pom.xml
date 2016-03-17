@@ -34,9 +34,9 @@
     <url>http://wso2.org</url>
 
     <scm>
-        <url>https://github.com/wso2-extensions/identity-notification-json.git</url>
-        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-notification-json.git</developerConnection>
-        <connection>scm:git:https://github.com/wso2-extensions/identity-notification-json.git</connection>
+        <url>https://github.com/wso2-extensions/identity-application-auth-google.git</url>
+        <developerConnection>scm:git:https://github.com/wso2-extensions/identity-application-auth-google.git</developerConnection>
+        <connection>scm:git:https://github.com/wso2-extensions/identity-application-auth-google.git</connection>
         <tag>HEAD</tag>
     </scm>
 
