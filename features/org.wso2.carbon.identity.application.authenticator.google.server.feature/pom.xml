@@ -20,7 +20,7 @@
 
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity-application-auth-google</artifactId>
+        <artifactId>identity-outbound-auth-google</artifactId>
         <relativePath>../../pom.xml</relativePath>
         <version>5.0.9-SNAPSHOT</version>
     </parent>
