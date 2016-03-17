@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.carbon.identity.application.authenticator.yahoo;
+package org.wso2.carbon.identity.application.authenticator.google;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
@@ -137,7 +137,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get yahoo user info endpoint.
+     * Get google user info endpoint.
      * @param token OAuth client response.
      * @return User info endpoint.
      */
