@@ -121,6 +121,7 @@
 
     <properties>
         <oltu.version>1.0.0.wso2v3</oltu.version>
+        <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
     </properties>
 
