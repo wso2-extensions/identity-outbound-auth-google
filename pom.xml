@@ -114,6 +114,21 @@
         </pluginRepository>
     </pluginRepositories>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.wso2.orbit.org.apache.oltu.oauth2</groupId>
+                <artifactId>oltu</artifactId>
+                <version>${oltu.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json.wso2</groupId>
+                <artifactId>json</artifactId>
+                <version>${json.wso2.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.google</module>
         <module>features/org.wso2.carbon.identity.application.authenticator.google.server.feature</module>
