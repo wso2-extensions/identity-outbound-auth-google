@@ -119,6 +119,12 @@
         <module>features/org.wso2.carbon.identity.application.authenticator.google.server.feature</module>
     </modules>
 
+    <properties>
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <oltu.version>1.0.0.wso2v3</oltu.version>
+        <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
+    </properties>
+
 </project>
 
 
