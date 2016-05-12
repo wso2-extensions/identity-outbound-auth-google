@@ -21,11 +21,12 @@
     <parent>
         <groupId>org.wso2.carbon.identity</groupId>
         <artifactId>identity-extension-parent</artifactId>
-        <version>5.0.9-SNAPSHOT</version>
+        <version>5.1.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>identity-outbound-auth-google</artifactId>
+    <version>5.1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Google Authenticator Feature Aggregator Module</name>
     <description>
@@ -126,6 +127,16 @@
                 <artifactId>json</artifactId>
                 <version>${json.wso2.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authenticator.openid</artifactId>
+                <version>${carbon.identity.authenticator.openid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
+                <version>${carbon.identity.authenticator.oidc.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -138,8 +149,8 @@
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
-        <carbon.identity.authenticator.oidc.version>5.0.9-SNAPSHOT</carbon.identity.authenticator.oidc.version>
-        <carbon.identity.authenticator.openid.version>5.0.9-SNAPSHOT</carbon.identity.authenticator.openid.version>
+        <carbon.identity.authenticator.oidc.version>5.1.0</carbon.identity.authenticator.oidc.version>
+        <carbon.identity.authenticator.openid.version>5.1.0</carbon.identity.authenticator.openid.version>
     </properties>
 
 </project>
