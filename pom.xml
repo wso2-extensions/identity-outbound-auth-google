@@ -19,11 +19,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.wso2.carbon.identity</groupId>
-        <artifactId>identity-extension-parent</artifactId>
-        <version>5.1.0</version>
+        <groupId>org.wso2</groupId>
+        <artifactId>wso2</artifactId>
+        <version>1</version>
     </parent>
 
+    <groupId>org.wso2.carbon.identity</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>identity-outbound-auth-google</artifactId>
     <version>5.1.1-SNAPSHOT</version>
@@ -137,8 +138,99 @@
                 <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
                 <version>${carbon.identity.authenticator.oidc.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.logging</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+                <version>${carbon.identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon</groupId>
+                <artifactId>org.wso2.carbon.ui</artifactId>
+                <version>${carbon.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wso2.carbon.identity</groupId>
+                <artifactId>org.wso2.carbon.identity.application.common</artifactId>
+                <version>${carbon.identity.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${org.slf4j.verison}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${org.slf4j.verison}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>${maven.scr.plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-scr-scrdescriptor</id>
+                            <goals>
+                                <goal>scr</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>${maven.bundle.plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <obrRepository>NONE</obrRepository>
+                        <instructions>
+                            <SCM-Revision>${buildNumber}</SCM-Revision>
+                        </instructions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <preparationGoals>clean install</preparationGoals>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <inherited>true</inherited>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.google</module>
@@ -146,11 +238,40 @@
     </modules>
 
     <properties>
+        <!-- Carbon kernel version -->
+        <carbon.kernel.version>4.4.7</carbon.kernel.version>
+        <carbon.kernel.package.import.version.range>[4.4.0, 5.0.0)</carbon.kernel.package.import.version.range>
+        <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
+        <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
+
+        <!-- Identity Outbound auth Google version -->
+        <identity.outbound.auth.google.version>${project.version}</identity.outbound.auth.google.version>
+        <identity.outbound.auth.google.version.exp.version>${identity.outbound.auth.google.version}</identity.outbound.auth.google.version.exp.version>
+
+        <!--Carbon Identity Framework Version-->
+        <carbon.identity.framework.version>5.2.1-SNAPSHOT</carbon.identity.framework.version>
+        <carbon.identity.framework.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.framework.package.import.version.range>
+
+        <!-- Servlet API -->
+        <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
+
+        <!-- Commons -->
+        <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
+        <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
+        <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
+        <org.slf4j.verison>1.6.1</org.slf4j.verison>
+
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
-        <carbon.identity.authenticator.oidc.version>5.1.0</carbon.identity.authenticator.oidc.version>
-        <carbon.identity.authenticator.openid.version>5.1.0</carbon.identity.authenticator.openid.version>
+        <carbon.identity.authenticator.oidc.version>5.1.1</carbon.identity.authenticator.oidc.version>
+        <carbon.identity.authenticator.openid.version>5.1.1</carbon.identity.authenticator.openid.version>
+
+        <!--Maven Plugin Version-->
+        <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
+        <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
+        <maven.scr.plugin.version>1.7.2</maven.scr.plugin.version>
+        <maven.bundle.plugin.version>2.4.0</maven.bundle.plugin.version>
     </properties>
 
 </project>
