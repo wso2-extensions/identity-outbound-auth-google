@@ -90,9 +90,9 @@
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.authenticator.oidc;
-                            version="${carbon.identity.authenticator.oidc.version.imp.version.range}",
+                            version="${carbon.identity.authenticator.oidc.imp.pkg.version.range}",
                             org.wso2.carbon.identity.application.authenticator.openid;
-                            version="${carbon.identity.authenticator.openid.version.imp.version.range}",
+                            version="${carbon.identity.authenticator.openid.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.framework.package.import.version.range}",
 
@@ -101,7 +101,7 @@
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.google.internal,
                             org.wso2.carbon.identity.application.authenticator.google.*;
-                            version="${identity.outbound.auth.google.version.exp.version}"
+                            version="${identity.outbound.auth.google.exp.version}"
                         </Export-Package>
                     </instructions>
                 </configuration>

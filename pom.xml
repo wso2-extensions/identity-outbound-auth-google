@@ -246,9 +246,9 @@
 
         <!-- Identity Outbound auth Google version -->
         <identity.outbound.auth.google.version>${project.version}</identity.outbound.auth.google.version>
-        <identity.outbound.auth.google.version.exp.version>${identity.outbound.auth.google.version}</identity.outbound.auth.google.version.exp.version>
-        <carbon.identity.authenticator.oidc.version.imp.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.oidc.version.imp.version.range>
-        <carbon.identity.authenticator.openid.version.imp.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.openid.version.imp.version.range>
+        <identity.outbound.auth.google.exp.version>${identity.outbound.auth.google.version}</identity.outbound.auth.google.exp.version>
+        <carbon.identity.authenticator.oidc.imp.pkg.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.oidc.imp.pkg.version.range>
+        <carbon.identity.authenticator.openid.imp.pkg.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.openid.imp.pkg.version.range>
 
         <!--Carbon Identity Framework Version-->
         <carbon.identity.framework.version>5.2.1-SNAPSHOT</carbon.identity.framework.version>
