@@ -93,9 +93,6 @@
                                 <importFeatureDef>
                                     org.wso2.carbon.identity.application.authenticator.oidc.server:compatible:${carbon.identity.authenticator.oidc.version}
                                 </importFeatureDef>
-                                <importFeatureDef>
-                                    org.wso2.carbon.identity.application.authenticator.openid.server:compatible:${carbon.identity.authenticator.openid.version}
-                                </importFeatureDef>
                             </importFeatures>
                         </configuration>
                     </execution>

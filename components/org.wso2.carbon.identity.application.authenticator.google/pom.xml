@@ -50,10 +50,6 @@
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity</groupId>
-            <artifactId>org.wso2.carbon.identity.application.authenticator.openid</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.carbon.identity</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
         </dependency>
     </dependencies>
@@ -91,8 +87,6 @@
                             version="${carbon.identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.authenticator.oidc;
                             version="${carbon.identity.authenticator.oidc.imp.pkg.version.range}",
-                            org.wso2.carbon.identity.application.authenticator.openid;
-                            version="${carbon.identity.authenticator.openid.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.framework.package.import.version.range}",
 
