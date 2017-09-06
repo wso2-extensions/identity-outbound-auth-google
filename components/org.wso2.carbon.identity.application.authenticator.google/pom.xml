@@ -91,7 +91,8 @@
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.framework.package.import.version.range}",
 
-                            org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}"
+                            org.wso2.carbon.ui; version="${carbon.kernel.package.import.version.range}",
+                            net.minidev.json; version="${net.minidev.json.imp.pkg.version.range}",
                         </Import-Package>
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.google.internal,

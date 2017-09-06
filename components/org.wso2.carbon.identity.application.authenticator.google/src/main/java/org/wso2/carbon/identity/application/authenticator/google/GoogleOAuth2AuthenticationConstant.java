@@ -31,5 +31,5 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String ADDITIONAL_QUERY_PARAMS = "AdditionalQueryParameters";
 
     public static final String OIDC_CLAIM_DIALECT_URI = "http://wso2.org/oidc/claim";
-    public static final String PARAMETER_VALUE_FOR_CLAIM_DIALECT = "GoogleClaimDialectUri";
+    public static final String CLAIM_DIALECT_URI_PARAMETER = "GoogleClaimDialectUri";
 }
