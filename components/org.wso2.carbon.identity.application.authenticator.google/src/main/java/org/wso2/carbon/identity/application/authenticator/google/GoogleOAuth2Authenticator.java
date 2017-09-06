@@ -337,4 +337,4 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         return claims;
     }
-}
+ }
