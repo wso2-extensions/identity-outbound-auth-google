@@ -18,7 +18,11 @@
 package org.wso2.carbon.identity.application.authenticator.google;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
+import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
@@ -32,6 +36,7 @@ import java.util.Map;
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
+    private static Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -214,5 +219,28 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     public String getName() {
         return GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME;
+    }
+
+    @Override
+    public String getClaimDialectURI() {
+        String claimDialectUri = GoogleOAuth2AuthenticationConstant.OIDC_CLAIM_DIALECT_URI;
+        AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean(getName());
+        if (authConfig != null) {
+           Map<String, String> parameters = authConfig.getParameterMap();
+           if (parameters != null && parameters.containsKey(GoogleOAuth2AuthenticationConstant.
+                   PARAMETER_VALUE_FOR_CLAIM_DIALECT)) {
+               claimDialectUri = parameters.get(GoogleOAuth2AuthenticationConstant.PARAMETER_VALUE_FOR_CLAIM_DIALECT);
+           } else {
+               if (log.isDebugEnabled()) {
+                   log.debug("Found no Parameter map for connector " + getName());
+               }
+           }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("FileBasedConfigBuilder returned null AuthenticatorConfigs for the connector " +
+                        getName());
+            }
+        }
+        return claimDialectUri;
     }
 }
