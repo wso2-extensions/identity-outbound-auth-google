@@ -237,7 +237,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
            }
         } else {
             if (log.isDebugEnabled()) {
-                log.debug("Error Reading Parameters for connector " + getName());
+                log.debug("FileBasedConfigBuilder returned null AuthenticatorConfigs for the connector " +
+                        getName());
             }
         }
         return claimDialectUri;
