@@ -277,7 +277,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             claimValue = entry.getValue().toString();
         }
         String claimDialectUri = getClaimDialectURI();
-        if (!OIDCAuthenticatorConstants.OIDC_CLAIM_DIALECT_URI.equals(claimDialectUri)) {
+        if (super.getClaimDialectURI() != null && !super.getClaimDialectURI().equals(claimDialectUri)) {
             claimUri = claimDialectUri + "/";
         }
 
@@ -318,7 +318,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 String key = data.getKey();
                 Object value = data.getValue();
                 String claimDialectUri = getClaimDialectURI();
-                if (!OIDCAuthenticatorConstants.OIDC_CLAIM_DIALECT_URI.equals(claimDialectUri)) {
+                if (super.getClaimDialectURI() != null && !super.getClaimDialectURI().equals(claimDialectUri)) {
                     key = claimDialectUri + "/" + key;
                 }
                 if (value != null) {
