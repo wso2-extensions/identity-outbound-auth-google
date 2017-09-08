@@ -229,7 +229,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     @Override
     public String getClaimDialectURI() {
-        String claimDialectUri = GoogleOAuth2AuthenticationConstant.OIDC_CLAIM_DIALECT_URI;
+        String claimDialectUri = super.getClaimDialectURI();
         AuthenticatorConfig authConfig = FileBasedConfigurationBuilder.getInstance().getAuthenticatorBean(getName());
         if (authConfig != null) {
            Map<String, String> parameters = authConfig.getParameterMap();
@@ -246,6 +246,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 log.debug("FileBasedConfigBuilder returned null AuthenticatorConfigs for the connector " +
                         getName());
             }
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Authenticator " + getName() + " is using the claim dialect uri " + claimDialectUri);
         }
         return claimDialectUri;
     }

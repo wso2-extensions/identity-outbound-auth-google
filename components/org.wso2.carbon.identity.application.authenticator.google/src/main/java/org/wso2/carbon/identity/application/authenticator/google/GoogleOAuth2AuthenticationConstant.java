@@ -29,7 +29,5 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String GOOGLE_SCOPE = "openid email profile";
     public static final String CALLBACK_URL = "Google-callback-url";
     public static final String ADDITIONAL_QUERY_PARAMS = "AdditionalQueryParameters";
-
-    public static final String OIDC_CLAIM_DIALECT_URI = "http://wso2.org/oidc/claim";
     public static final String CLAIM_DIALECT_URI_PARAMETER = "GoogleClaimDialectUri";
 }
