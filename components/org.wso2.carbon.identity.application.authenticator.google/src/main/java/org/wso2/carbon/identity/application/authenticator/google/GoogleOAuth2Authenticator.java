@@ -42,7 +42,7 @@ import java.util.*;
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
-    private static Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
+    private static final Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
