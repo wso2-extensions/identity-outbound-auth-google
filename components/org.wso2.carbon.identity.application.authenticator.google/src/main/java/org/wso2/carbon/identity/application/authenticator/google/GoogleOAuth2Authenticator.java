@@ -174,25 +174,25 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);
-        clientId.setDisplayName("Client Id");
+        clientId.setDisplayName("Client ID");
         clientId.setRequired(true);
-        clientId.setDescription("Enter Google IDP client identifier value");
+        clientId.setDescription("The client identifier value of the Google identity provider.");
         clientId.setDisplayOrder(1);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
         clientSecret.setName(OIDCAuthenticatorConstants.CLIENT_SECRET);
-        clientSecret.setDisplayName("Client Secret");
+        clientSecret.setDisplayName("Client secret");
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
-        clientSecret.setDescription("Enter Google IDP client secret value");
+        clientSecret.setDescription("The client secret value of the Google identity provider.");
         clientSecret.setDisplayOrder(2);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
-        callbackUrl.setDisplayName("Callback Url");
+        callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
-        callbackUrl.setDescription("Enter value corresponding to callback url.");
+        callbackUrl.setDescription("The callback URL used to obtain Google credentials.");
         callbackUrl.setDisplayOrder(3);
         configProperties.add(callbackUrl);
 
@@ -200,7 +200,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setDisplayName("Additional Query Parameters");
         scope.setName("AdditionalQueryParameters");
         scope.setValue("scope=openid email profile");
-        scope.setDescription("Additional query parameters. e.g: paramName1=value1");
+        scope.setDescription("Additional query parameters to be sent to Google.");
         scope.setDisplayOrder(4);
         configProperties.add(scope);
 
