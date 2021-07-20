@@ -43,7 +43,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
     private static final Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
-    private static final Log diagnosticLog = LogFactory.getLog("diagnostics");
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -251,7 +250,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         if (log.isDebugEnabled()) {
             log.debug("Authenticator " + getName() + " is using the claim dialect uri " + claimDialectUri);
         }
-        diagnosticLog.info("Authenticator " + getName() + " is using the claim dialect uri " + claimDialectUri);
         return claimDialectUri;
     }
 
@@ -311,8 +309,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
                             " Proceeding without user claims");
                 }
-                diagnosticLog.info("Empty JSON response from user info endpoint. Unable to fetch user claims." +
-                        " Proceeding without user claims");
                 return claims;
             }
 
@@ -337,8 +333,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             }
         } catch (IOException e) {
             log.error("Communication error occurred while accessing user info endpoint", e);
-            diagnosticLog.error("Communication error occurred while accessing user info endpoint. Error message: " +
-                    e.getMessage());
         }
 
         return claims;
