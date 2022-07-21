@@ -17,6 +17,10 @@
  */
 package org.wso2.carbon.identity.application.authenticator.google;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.apache.v2.ApacheHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONValue;
 import org.apache.commons.lang.StringUtils;
@@ -24,9 +28,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
+import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -36,8 +44,12 @@ import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
@@ -56,6 +68,158 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             this.tokenEndpoint = IdentityApplicationConstants.GOOGLE_TOKEN_URL;
         }
+    }
+
+    @Override
+    public boolean canHandle(HttpServletRequest request) {
+
+        boolean canHandle = false;
+        if (log.isDebugEnabled()) {
+            log.debug("Inside OpenIDConnectAuthenticator.canHandle()");
+        }
+        if (StringUtils.isNotBlank(request.getParameter("oneTapEnabled")) &&
+                request.getParameter("oneTapEnabled").equals("YES")) {
+            // Verifying the Cross-Site Request Forgery (CSRF) token.
+            boolean validCookies = validateCSRFCookies(request);
+            if (validCookies) {
+                canHandle = validateJWTFromGOT(request);
+            }
+        } else {
+            canHandle = super.canHandle(request);
+        }
+        return canHandle;
+    }
+
+    /**
+     * This function validated the JWT token sent via Google One Tap respond
+     * @param request
+     * @return
+     */
+    private boolean validateJWTFromGOT(HttpServletRequest request) {
+
+        boolean validCredential;
+        ExternalIdPConfig externalIdPConfig;
+        try {
+            externalIdPConfig = ConfigurationFacade.getInstance()
+                    .getIdPConfigByName("Google Authenticator", "carbon.super");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        String clientId = FrameworkUtils
+                .getAuthenticatorPropertyMapFromIdP(externalIdPConfig, "GoogleOIDCAuthenticator").get("ClientId");
+
+        String idTokenString = request.getParameter("credential");
+        //Verifying the ID token.
+        ApacheHttpTransport transport = new ApacheHttpTransport();
+        GsonFactory jsonFactory = new GsonFactory();
+
+        // Specify the CLIENT_ID of the app that accesses the backend:
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(Collections.singletonList(clientId))
+                // Or, if multiple clients access the backend:
+                //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+                .build();
+        GoogleIdToken idToken;
+        try {
+             idToken = verifier.verify(idTokenString);
+        } catch (GeneralSecurityException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("In-secured JWT returned from Google One Tap", e);
+            }
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            if (log.isDebugEnabled()) {
+                log.debug("Exception while validating the JWT returned from Google One Tap");
+            }
+            throw new RuntimeException(e);
+        }
+        validCredential =  idToken != null ? true:false;
+        return validCredential;
+    }
+
+    /**
+     * This function validates the CSRF double-sided cookie returned from Google One Tap respond
+     * The request is considered as non-attacked request if the CSRF cookie and the parameter is equal
+     * @param request
+     * @return
+     */
+    private boolean validateCSRFCookies(HttpServletRequest request) {
+
+        boolean validCookies =  false;
+
+        if (request.getCookies() != null) {
+
+            String crossRefCookieHalf;
+            String crossRefParamHalf = request.getParameter("g_csrf_token");
+
+            List<Cookie> crossRefCookies = Arrays.stream(request.getCookies())
+                    .filter(cookie -> cookie.getName().equalsIgnoreCase("g_csrf_token"))
+                    .collect(Collectors.toList());
+
+            if (crossRefCookies == null || crossRefCookies.isEmpty() || crossRefCookies.get(0) == null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("No CSRF cookie found. Invalid request");
+                }
+            } else {
+                crossRefCookieHalf = crossRefCookies.get(0).getValue();
+
+                if (crossRefParamHalf == null || crossRefParamHalf.isEmpty() || crossRefCookieHalf.isEmpty()) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("No CSRF parameter found. Invalid request");
+                    }
+                } else if (!crossRefParamHalf.equals(crossRefCookieHalf)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("CSRF validation failed for Google One Tap");
+                    }
+                } else {
+                    validCookies = true;
+                }
+            }
+        }
+        return validCookies;
+    }
+
+    @Override
+    protected String mapIdToken(AuthenticationContext context, HttpServletRequest request, OAuthClientResponse oAuthResponse) {
+        String idToken;
+        if (StringUtils.isNotBlank(request.getParameter("oneTapEnabled")) &&
+                request.getParameter("oneTapEnabled").equals("YES")){
+             idToken = request.getParameter("credential");
+            context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
+        } else {
+            idToken = super.mapIdToken(context, request, oAuthResponse);
+        }
+        return idToken;
+    }
+
+    @Override
+    protected boolean isInitialRequest(AuthenticationContext context, HttpServletRequest request) {
+        boolean isInitialRequest;
+        if (StringUtils.isNotBlank(request.getParameter("oneTapEnabled")) &&
+                request.getParameter("oneTapEnabled").equals("YES")){
+            isInitialRequest = false;
+            context.setCurrentAuthenticator(getName());
+            context.setProperty("oneTapEnabled", request.getParameter("oneTapEnabled").equalsIgnoreCase("YES"));//Setting onetap config at context level
+        } else {
+            isInitialRequest = super.isInitialRequest(context,request);
+        }
+            return isInitialRequest;
+    }
+
+    @Override
+    protected void mapAccessToken(HttpServletRequest request, AuthenticationContext context, OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+        if (StringUtils.isEmpty(request.getParameter("oneTapEnabled") )|| !request.getParameter("oneTapEnabled").equals("YES")){
+            super.mapAccessToken(request, context, oAuthResponse);
+        }
+    }
+
+    @Override
+    protected OAuthClientResponse generateOauthResponse(HttpServletRequest request, AuthenticationContext context) throws AuthenticationFailedException {
+        OAuthClientResponse oAuthClientResponse = null;
+        if (StringUtils.isEmpty(request.getParameter("oneTapEnabled") )|| !request.getParameter("oneTapEnabled").equals("YES")){
+            oAuthClientResponse = super.generateOauthResponse(request, context);
+        }
+        return oAuthClientResponse;
     }
 
     /**
@@ -172,12 +336,21 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         List<Property> configProperties = new ArrayList<Property>();
 
+        Property googleOneTap = new Property();
+        googleOneTap.setName(OIDCAuthenticatorConstants.GOOGLE_ONE_TAP_ENABLED);
+        googleOneTap.setDisplayName("Google One Tap");
+        googleOneTap.setRequired(false);
+        googleOneTap.setType("boolean");
+        googleOneTap.setDescription("Enable Google One Tap as a sign in option.");
+        googleOneTap.setDisplayOrder(1);
+        configProperties.add(googleOneTap);
+
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);
         clientId.setDisplayName("Client ID");
         clientId.setRequired(true);
         clientId.setDescription("The client identifier value of the Google identity provider.");
-        clientId.setDisplayOrder(1);
+        clientId.setDisplayOrder(2);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -186,14 +359,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("The client secret value of the Google identity provider.");
-        clientSecret.setDisplayOrder(2);
+        clientSecret.setDisplayOrder(3);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("The callback URL used to obtain Google credentials.");
-        callbackUrl.setDisplayOrder(3);
+        callbackUrl.setDisplayOrder(4);
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
@@ -201,7 +374,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setName("AdditionalQueryParameters");
         scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters to be sent to Google.");
-        scope.setDisplayOrder(4);
+        scope.setDisplayOrder(5);
         configProperties.add(scope);
 
         return configProperties;
@@ -299,40 +472,43 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Map<ClaimMapping, String> claims = new HashMap<>();
 
-        try {
-            String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
-            String url = getUserInfoEndpoint(token, authenticatorProperties);
-            String json = sendRequest(url, accessToken);
+        if (token != null) {
+            try {
 
-            if (StringUtils.isBlank(json)) {
-                if(log.isDebugEnabled()) {
-                    log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
-                            " Proceeding without user claims");
+                String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
+                String url = getUserInfoEndpoint(token, authenticatorProperties);
+                String json = sendRequest(url, accessToken);
+
+                if (StringUtils.isBlank(json)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
+                                " Proceeding without user claims");
+                    }
+                    return claims;
                 }
-                return claims;
+
+                Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
+
+                for (Map.Entry<String, Object> data : jsonObject.entrySet()) {
+                    String key = data.getKey();
+                    Object value = data.getValue();
+                    String claimDialectUri = getClaimDialectURI();
+                    if (super.getClaimDialectURI() != null && !super.getClaimDialectURI().equals(claimDialectUri)) {
+                        key = claimDialectUri + "/" + key;
+                    }
+                    if (value != null) {
+                        claims.put(ClaimMapping.build(key, key, null, false), value.toString());
+                    }
+
+                    if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)
+                            && jsonObject.get(key) != null) {
+                        log.debug("Adding claims from end-point data mapping : " + key + " - " + jsonObject.get(key)
+                                .toString());
+                    }
+                }
+            } catch (IOException e) {
+                log.error("Communication error occurred while accessing user info endpoint", e);
             }
-
-            Map<String, Object> jsonObject = JSONUtils.parseJSON(json);
-
-            for (Map.Entry<String, Object> data : jsonObject.entrySet()) {
-                String key = data.getKey();
-                Object value = data.getValue();
-                String claimDialectUri = getClaimDialectURI();
-                if (super.getClaimDialectURI() != null && !super.getClaimDialectURI().equals(claimDialectUri)) {
-                    key = claimDialectUri + "/" + key;
-                }
-                if (value != null) {
-                    claims.put(ClaimMapping.build(key, key, null, false), value.toString());
-                }
-
-                if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)
-                        && jsonObject.get(key) != null) {
-                    log.debug("Adding claims from end-point data mapping : " + key + " - " + jsonObject.get(key)
-                            .toString());
-                }
-            }
-        } catch (IOException e) {
-            log.error("Communication error occurred while accessing user info endpoint", e);
         }
 
         return claims;
