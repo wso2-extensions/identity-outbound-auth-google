@@ -95,7 +95,7 @@
             <dependency>
                 <groupId>com.google.api-client</groupId>
                 <artifactId>google-api-client</artifactId>
-                <version>1.35.2</version>
+                <version>${google.api.client.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -219,6 +219,8 @@
         <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
         <maven.scr.plugin.version>1.7.2</maven.scr.plugin.version>
         <maven.bundle.plugin.version>2.4.0</maven.bundle.plugin.version>
+
+        <google.api.client.version>1.35.2</google.api.client.version>
     </properties>
 
 </project>

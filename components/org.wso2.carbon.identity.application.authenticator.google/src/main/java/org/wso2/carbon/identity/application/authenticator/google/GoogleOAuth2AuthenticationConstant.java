@@ -30,4 +30,5 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String CALLBACK_URL = "Google-callback-url";
     public static final String ADDITIONAL_QUERY_PARAMS = "AdditionalQueryParameters";
     public static final String CLAIM_DIALECT_URI_PARAMETER = "ClaimDialectUri";
+    public static final String GOOGLE_ONE_TAP_ENABLED = "IsGoogleOneTapEnabled";
 }

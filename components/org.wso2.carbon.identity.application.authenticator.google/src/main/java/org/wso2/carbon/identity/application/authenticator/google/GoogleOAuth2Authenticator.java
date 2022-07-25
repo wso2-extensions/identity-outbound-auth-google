@@ -368,7 +368,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         List<Property> configProperties = new ArrayList<Property>();
 
         Property googleOneTap = new Property();
-        googleOneTap.setName(OIDCAuthenticatorConstants.GOOGLE_ONE_TAP_ENABLED);
+        googleOneTap.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_ENABLED);
         googleOneTap.setDisplayName("Google One Tap");
         googleOneTap.setRequired(false);
         googleOneTap.setType("boolean");
