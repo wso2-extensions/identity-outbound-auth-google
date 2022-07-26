@@ -221,7 +221,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         // Google One Tap flow returns the JWT token at the very first callback.
         if (isOneTapEnabled(request)) {
             context.setCurrentAuthenticator(getName());
-            context.setProperty(ONE_TAP_ENABLED, true);//Setting google one tap config at context level
+            //Setting google one tap config to context level
+            context.setProperty(ONE_TAP_ENABLED, true);
             return false;
         }
         return super.isInitialRequest(context, request);
