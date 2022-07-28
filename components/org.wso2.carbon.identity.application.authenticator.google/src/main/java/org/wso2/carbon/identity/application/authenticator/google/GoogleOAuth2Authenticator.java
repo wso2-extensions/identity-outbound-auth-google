@@ -28,25 +28,20 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.oltu.oauth2.client.response.OAuthClientResponse;
 import org.apache.oltu.oauth2.common.utils.JSONUtils;
-import org.wso2.carbon.identity.application.authentication.framework.config.ConfigurationFacade;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
-import org.wso2.carbon.identity.application.authentication.framework.config.model.ExternalIdPConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
-import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.oidc.util.OIDCErrorConstants;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.base.IdentityConstants;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
-import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -58,15 +53,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
     private static final Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
     private static final String ONE_TAP_ENABLED = "one_tap_enabled";
     private static final String CREDENTIAL = "credential";
-    private static final String IDP = "idp";
     private static final String G_CSRF_TOKEN = "g_csrf_token";
-    private static final String TENANT_DOMAIN = "tenantDomain";
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -86,19 +82,9 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     public boolean canHandle(HttpServletRequest request) {
 
-        /*
-          Validity of the
-          1. CSRF cookies
-          2. JWT token
-          decide the ability of handling the authentication request in Google One Tap flow.
-         */
+        // Google one tap flow does not require any special parameter validation at this level
         if (isOneTapEnabled(request)) {
-            boolean validCookies = validateCSRFCookies(request);
-            if (validCookies){
-                return validateJWTFromGOT(request);
-            } else {
-                return false;
-            }
+            return true;
         }
         return super.canHandle(request);
     }
@@ -106,47 +92,23 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     /**
      * This function validates the JWT token by its content using Google libraries.
      *
-     * @param request Authentication request with JWT token.
+     * @param request  HttpServletRequest. Authentication request with JWT token.
+     * @param clientID String. Authenticator client ID to check validity
      * @return Validity of the returned JWT token returned via Google One Tap.
      */
-    private boolean validateJWTFromGOT(HttpServletRequest request) {
-
-        String authenticatorName = "";
-        String tenantDomain = "";
-        ExternalIdPConfig externalIdPConfig = null;
-        try {
-            authenticatorName = request.getParameter(IDP);
-            // Returns "null" for null.
-            tenantDomain = String.valueOf(request.getAttribute(TENANT_DOMAIN));
-
-            externalIdPConfig = ConfigurationFacade.getInstance()
-                    .getIdPConfigByName(authenticatorName, tenantDomain);
-        } catch (IdentityProviderManagementException e) {
-            log.error("Error in identifying the authenticator : " + authenticatorName + ", Tenanted domain" +
-                    tenantDomain, e);
-        }
-        if (externalIdPConfig == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Cannot identify the authenticator : " + authenticatorName + ", Tenanted domain" +
-                        tenantDomain);
-            }
-            return false;
-        }
-        String clientId = FrameworkUtils.getAuthenticatorPropertyMapFromIdP(externalIdPConfig, getName())
-                .get(OIDCAuthenticatorConstants.CLIENT_ID);
+    private boolean validateJWTFromGOT(HttpServletRequest request, String clientID) {
 
         String idTokenString = request.getParameter(CREDENTIAL);
         // Verifying the ID token.
         ApacheHttpTransport transport = new ApacheHttpTransport();
         GsonFactory jsonFactory = new GsonFactory();
-
         /*
           Specify the CLIENT_ID of the app that accesses the backend:
           Or, if multiple clients access the backend:
           .setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3)).
          */
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
+                .setAudience(Collections.singletonList(clientID))
                 .build();
         GoogleIdToken idToken = null;
         try {
@@ -169,7 +131,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * This function validates the CSRF double-sided cookie returned from Google One Tap respond.
      * The request is considered as non-attacked request if the CSRF cookie and the parameter is equal.
      *
-     * @param request Authentication request with Google One Tap auth payloads.
+     * @param request HttpServletRequest. Authentication request with Google One Tap auth payloads.
      * @return Integrity of the authentication request sent via Google One Tap.
      */
     private boolean validateCSRFCookies(HttpServletRequest request) {
@@ -213,10 +175,33 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     @Override
     protected String mapIdToken(AuthenticationContext context, HttpServletRequest request,
-                                OAuthClientResponse oAuthResponse) {
+                                OAuthClientResponse oAuthResponse) throws AuthenticationFailedException{
 
+        /*
+          Validity of the
+          1. CSRF cookies
+          2. JWT token
+          decide the ability of handling the authentication request in Google One Tap flow.
+         */
         if (isOneTapEnabled(request)) {
-            // The existence and the validity of CREDENTIAL has been verified at canHandle().
+            Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+            String clientID = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
+
+            boolean validCookies = validateCSRFCookies(request);
+            if (!validCookies) {
+                log.error("CSRF cookie validation failed in Google one tap. Authenticator : "+ getName() +
+                        " Client Id : " + clientID );
+                throw new AuthenticationFailedException(OIDCErrorConstants.
+                        ErrorMessages.INTEGRITY_VIOLATION_EXCEPTION.getMessage());
+            }
+
+            boolean validJWT = validateJWTFromGOT(request, clientID);
+            if (!validJWT){
+                log.error("JWT validation failed in Google one tap. Authenticator : "+ getName() +
+                        " Client Id : " + clientID );
+                throw new AuthenticationFailedException(OIDCErrorConstants.
+                        ErrorMessages.INTEGRITY_VIOLATION_EXCEPTION.getMessage());
+            }
             String idToken = request.getParameter(CREDENTIAL);
             context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
             return idToken;
