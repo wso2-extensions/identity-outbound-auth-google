@@ -34,7 +34,6 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
-import org.wso2.carbon.identity.application.authenticator.oidc.util.OIDCErrorConstants;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
@@ -189,18 +188,16 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
             boolean validCookies = validateCSRFCookies(request);
             if (!validCookies) {
-                log.error("CSRF cookie validation failed in Google one tap. Authenticator : "+ getName() +
-                        " Client Id : " + clientID );
-                throw new AuthenticationFailedException(OIDCErrorConstants.
-                        ErrorMessages.INTEGRITY_VIOLATION_EXCEPTION.getMessage());
+                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), getName(), clientID));
             }
 
             boolean validJWT = validateJWTFromGOT(request, clientID);
-            if (!validJWT){
-                log.error("JWT validation failed in Google one tap. Authenticator : "+ getName() +
-                        " Client Id : " + clientID );
-                throw new AuthenticationFailedException(OIDCErrorConstants.
-                        ErrorMessages.INTEGRITY_VIOLATION_EXCEPTION.getMessage());
+            if (!validJWT) {
+                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                        .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                        .TOKEN_VALIDATION_FAILED_ERROR.getMessage(), getName(), clientID));
             }
             String idToken = request.getParameter(CREDENTIAL);
             context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
@@ -361,13 +358,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     public List<Property> getConfigurationProperties() {
 
         List<Property> configProperties = new ArrayList<Property>();
+        int parameterCount = 0;
 
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);
         clientId.setDisplayName("Client ID");
         clientId.setRequired(true);
         clientId.setDescription("The client identifier value of the Google identity provider.");
-        clientId.setDisplayOrder(1);
+        clientId.setDisplayOrder(parameterCount++);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -376,14 +374,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("The client secret value of the Google identity provider.");
-        clientSecret.setDisplayOrder(2);
+        clientSecret.setDisplayOrder(parameterCount++);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("The callback URL used to obtain Google credentials.");
-        callbackUrl.setDisplayOrder(3);
+        callbackUrl.setDisplayOrder(parameterCount++);
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
@@ -391,16 +389,16 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setName("AdditionalQueryParameters");
         scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters to be sent to Google.");
-        scope.setDisplayOrder(4);
+        scope.setDisplayOrder(parameterCount++);
         configProperties.add(scope);
 
         Property googleOneTap = new Property();
         googleOneTap.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_ENABLED);
-        googleOneTap.setDisplayName("Enable One Tap");
+        googleOneTap.setDisplayName(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_DISPLAY_NAME);
         googleOneTap.setRequired(false);
         googleOneTap.setType("boolean");
-        googleOneTap.setDescription("Enable Google One Tap as a sign in option.");
-        googleOneTap.setDisplayOrder(5);
+        googleOneTap.setDescription(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_DESCRIPTION);
+        googleOneTap.setDisplayOrder(parameterCount++);
         configProperties.add(googleOneTap);
 
         return configProperties;
