@@ -26,9 +26,9 @@ public class GoogleErrorConstants {
     public enum ErrorMessages {
 
         CSRF_VALIDATION_FAILED_ERROR("60000", "CSRF cookie validation failed in Google one tap. " +
-                "Authenticator : %s Client Id : %s ."),
+                "Authenticator : "+ GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME +" Client Id : %s ."),
         TOKEN_VALIDATION_FAILED_ERROR("60001", "JWT validation failed in Google one tap. " +
-                "Authenticator : %s Client Id : %s .");
+                "Authenticator :"+ GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME +" Client Id : %s .");
         private final String code;
         private final String message;
 

@@ -190,14 +190,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             if (!validCookies) {
                 throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                         .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
-                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), getName(), clientID));
+                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
             }
 
             boolean validJWT = validateJWTFromGOT(request, clientID);
             if (!validJWT) {
                 throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                         .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
-                        .TOKEN_VALIDATION_FAILED_ERROR.getMessage(), getName(), clientID));
+                        .TOKEN_VALIDATION_FAILED_ERROR.getMessage(), clientID));
             }
             String idToken = request.getParameter(CREDENTIAL);
             context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);

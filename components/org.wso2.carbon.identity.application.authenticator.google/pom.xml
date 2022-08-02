@@ -100,7 +100,6 @@
                         </Import-Package>
                         <Embed-Dependency>
                             google-api-client,
-                            org.wso2.carbon.identity.application.authenticator.oidc
                         </Embed-Dependency>
                         <Export-Package>
                             !org.wso2.carbon.identity.application.authenticator.google.internal,
