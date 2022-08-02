@@ -23,9 +23,6 @@ package org.wso2.carbon.identity.application.authenticator.google;
  */
 public class GoogleErrorConstants {
 
-    /**
-     * Google authenticator specific errors.
-     */
     public enum ErrorMessages {
 
         CSRF_VALIDATION_FAILED_ERROR("60000", "CSRF cookie validation failed in Google one tap. " +
