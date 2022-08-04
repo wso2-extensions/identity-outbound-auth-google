@@ -88,90 +88,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         return super.canHandle(request);
     }
 
-    /**
-     * This function validates the JWT token by its content using Google libraries.
-     *
-     * @param request  HttpServletRequest. Authentication request with JWT token.
-     * @param clientID String. Authenticator client ID to check validity
-     * @return Validity of the returned JWT token returned via Google One Tap.
-     */
-    private boolean validateJWTFromGOT(HttpServletRequest request, String clientID) {
-
-        String idTokenString = request.getParameter(CREDENTIAL);
-        // Verifying the ID token.
-        ApacheHttpTransport transport = new ApacheHttpTransport();
-        GsonFactory jsonFactory = new GsonFactory();
-        /*
-          Specify the CLIENT_ID of the app that accesses the backend:
-          Or, if multiple clients access the backend:
-          .setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3)).
-         */
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientID))
-                .build();
-        GoogleIdToken idToken = null;
-        try {
-            idToken = verifier.verify(idTokenString);
-        } catch (GeneralSecurityException e) {
-            log.error("In-secured JWT returned from Google One Tap.", e);
-        } catch (IOException e) {
-            log.error("Exception while validating the JWT returned from Google One Tap.", e);
-        }
-        if (idToken != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("JWT token validated successfully for Google One Tap.");
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * This function validates the CSRF double-sided cookie returned from Google One Tap respond.
-     * The request is considered as non-attacked request if the CSRF cookie and the parameter is equal.
-     *
-     * @param request HttpServletRequest. Authentication request with Google One Tap auth payloads.
-     * @return Integrity of the authentication request sent via Google One Tap.
-     */
-    private boolean validateCSRFCookies(HttpServletRequest request) {
-
-        if (request.getCookies() == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No valid cookie found for Google One Tap authentication.");
-            }
-            return false;
-        }
-        List<Cookie> crossRefCookies = Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equalsIgnoreCase(G_CSRF_TOKEN))
-                .collect(Collectors.toList());
-
-        if (crossRefCookies.isEmpty() || crossRefCookies.get(0) == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No CSRF cookie found. Invalid request.");
-            }
-            return false;
-        }
-        String crossRefCookieHalf = crossRefCookies.get(0).getValue();
-        String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
-
-        if (StringUtils.isEmpty(crossRefParamHalf) || StringUtils.isEmpty(crossRefCookieHalf)) {
-            if (log.isDebugEnabled()) {
-                log.debug("No CSRF parameter found. Invalid request.");
-            }
-            return false;
-        }
-        if (!crossRefParamHalf.equals(crossRefCookieHalf)) {
-            if (log.isDebugEnabled()) {
-                log.debug("CSRF validation failed for Google One Tap.");
-            }
-            return false;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("Validated CSRF cookies successfully for Google One Tap.");
-        }
-        return true;
-    }
-
     @Override
     protected String mapIdToken(AuthenticationContext context, HttpServletRequest request,
                                 OAuthClientResponse oAuthResponse) throws AuthenticationFailedException{
@@ -536,6 +452,90 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             log.error("Communication error occurred while accessing user info endpoint", e);
         }
         return claims;
+    }
+
+    /**
+     * This function validates the JWT token by its content using Google libraries.
+     *
+     * @param request  HttpServletRequest. Authentication request with JWT token.
+     * @param clientID String. Authenticator client ID to check validity
+     * @return Validity of the returned JWT token returned via Google One Tap.
+     */
+    private boolean validateJWTFromGOT(HttpServletRequest request, String clientID) {
+
+        String idTokenString = request.getParameter(CREDENTIAL);
+        // Verifying the ID token.
+        ApacheHttpTransport transport = new ApacheHttpTransport();
+        GsonFactory jsonFactory = new GsonFactory();
+        /*
+          Specify the CLIENT_ID of the app that accesses the backend:
+          Or, if multiple clients access the backend:
+          .setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3)).
+         */
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(Collections.singletonList(clientID))
+                .build();
+        GoogleIdToken idToken = null;
+        try {
+            idToken = verifier.verify(idTokenString);
+        } catch (GeneralSecurityException e) {
+            log.error("In-secured JWT returned from Google One Tap.", e);
+        } catch (IOException e) {
+            log.error("Exception while validating the JWT returned from Google One Tap.", e);
+        }
+        if (idToken != null) {
+            if (log.isDebugEnabled()) {
+                log.debug("JWT token validated successfully for Google One Tap.");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This function validates the CSRF double-sided cookie returned from Google One Tap respond.
+     * The request is considered as non-attacked request if the CSRF cookie and the parameter is equal.
+     *
+     * @param request HttpServletRequest. Authentication request with Google One Tap auth payloads.
+     * @return Integrity of the authentication request sent via Google One Tap.
+     */
+    private boolean validateCSRFCookies(HttpServletRequest request) {
+
+        if (request.getCookies() == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No valid cookie found for Google One Tap authentication.");
+            }
+            return false;
+        }
+        List<Cookie> crossRefCookies = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equalsIgnoreCase(G_CSRF_TOKEN))
+                .collect(Collectors.toList());
+
+        if (crossRefCookies.isEmpty() || crossRefCookies.get(0) == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No CSRF cookie found. Invalid request.");
+            }
+            return false;
+        }
+        String crossRefCookieHalf = crossRefCookies.get(0).getValue();
+        String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
+
+        if (StringUtils.isEmpty(crossRefParamHalf) || StringUtils.isEmpty(crossRefCookieHalf)) {
+            if (log.isDebugEnabled()) {
+                log.debug("No CSRF parameter found. Invalid request.");
+            }
+            return false;
+        }
+        if (!crossRefParamHalf.equals(crossRefCookieHalf)) {
+            if (log.isDebugEnabled()) {
+                log.debug("CSRF validation failed for Google One Tap.");
+            }
+            return false;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Validated CSRF cookies successfully for Google One Tap.");
+        }
+        return true;
     }
 
     /**
