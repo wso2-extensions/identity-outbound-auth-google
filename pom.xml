@@ -91,6 +91,12 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.verison}</version>
             </dependency>
+            <!-- https://mvnrepository.com/artifact/org.wso2.orbit.com.nimbusds/nimbus-jose-jwt -->
+            <dependency>
+                <groupId>org.wso2.orbit.com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbusds.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -144,8 +150,8 @@
                 <inherited>true</inherited>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -190,8 +196,8 @@
         <identity.outbound.auth.google.exp.version>${project.version}</identity.outbound.auth.google.exp.version>
         <carbon.identity.authenticator.oidc.imp.pkg.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.oidc.imp.pkg.version.range>
         <!--Carbon Identity Framework Version-->
-        <carbon.identity.framework.version>5.5.0</carbon.identity.framework.version>
-        <carbon.identity.framework.package.import.version.range>[5.0.0, 6.0.0)</carbon.identity.framework.package.import.version.range>
+        <carbon.identity.framework.version>5.21.45</carbon.identity.framework.version>
+        <carbon.identity.framework.package.import.version.range>[5.14.67, 6.0.0)</carbon.identity.framework.package.import.version.range>
 
         <!-- Servlet API -->
         <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
@@ -200,14 +206,15 @@
         <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
-        <org.slf4j.verison>1.6.1</org.slf4j.verison>
+        <nimbusds.osgi.version.range>[7.3.0,8.0.0)</nimbusds.osgi.version.range>
 
+        <org.slf4j.verison>1.6.1</org.slf4j.verison>
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
-        <carbon.identity.authenticator.oidc.version>5.1.3</carbon.identity.authenticator.oidc.version>
+        <carbon.identity.authenticator.oidc.version>5.7.5</carbon.identity.authenticator.oidc.version>
         <net.minidev.json.imp.pkg.version.range>[2.3.0, 3.0.0)</net.minidev.json.imp.pkg.version.range>
-
+        <nimbusds.version>7.3.0.wso2v1</nimbusds.version>
         <!--Maven Plugin Version-->
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>

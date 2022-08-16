@@ -27,6 +27,7 @@ import org.apache.oltu.oauth2.common.utils.JSONUtils;
 import org.wso2.carbon.identity.application.authentication.framework.config.builder.FileBasedConfigurationBuilder;
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
+import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
@@ -37,12 +38,24 @@ import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
     private static final Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
+    private static final String ONE_TAP_ENABLED = "one_tap_enabled";
+    private static final String CREDENTIAL = "credential";
+    private static final String G_CSRF_TOKEN = "g_csrf_token";
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -51,11 +64,95 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      * Initiate tokenEndpoint
      */
     private void initTokenEndpoint() {
+
         this.tokenEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
                 .GOOGLE_TOKEN_ENDPOINT);
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             this.tokenEndpoint = IdentityApplicationConstants.GOOGLE_TOKEN_URL;
         }
+    }
+
+    @Override
+    public boolean canHandle(HttpServletRequest request) {
+
+        // Google one tap flow does not require any special parameter validation at this level
+        if (isOneTapEnabled(request)) {
+            return true;
+        }
+        return super.canHandle(request);
+    }
+
+    @Override
+    protected String mapIdToken(AuthenticationContext context, HttpServletRequest request,
+                                OAuthClientResponse oAuthResponse) throws AuthenticationFailedException{
+
+        /*
+          Validity of the
+          1. CSRF cookies
+          2. JWT token
+          decide the ability of handling the authentication request in Google One Tap flow.
+         */
+        if (isOneTapEnabled(request)) {
+            Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
+            String clientID = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
+
+            boolean validCookies = validateCSRFCookies(request);
+            if (!validCookies) {
+                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
+            }
+
+            boolean validJWT = Utils.validateJWT(request.getParameter(CREDENTIAL),clientID);
+            if (!validJWT) {
+                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                        .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                        .TOKEN_VALIDATION_FAILED_ERROR.getMessage(), clientID));
+            }
+            String idToken = request.getParameter(CREDENTIAL);
+            context.setProperty(OIDCAuthenticatorConstants.ID_TOKEN, idToken);
+            return idToken;
+        }
+        return super.mapIdToken(context, request, oAuthResponse);
+    }
+
+    @Override
+    protected boolean isInitialRequest(AuthenticationContext context, HttpServletRequest request) {
+
+        // Google One Tap flow returns the JWT token at the very first callback.
+        if (isOneTapEnabled(request)) {
+            context.setCurrentAuthenticator(getName());
+            return false;
+        }
+        return super.isInitialRequest(context, request);
+    }
+
+    @Override
+    protected void mapAccessToken(HttpServletRequest request, AuthenticationContext context,
+                                  OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
+
+        // Google One Tap flow does not require this step.
+        if (isOneTapEnabled(request)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Passing mapAccessToken:Google One Tap authentication flow");
+            }
+            return;
+        }
+        super.mapAccessToken(request, context, oAuthResponse);
+    }
+
+    @Override
+    protected OAuthClientResponse generateOauthResponse(HttpServletRequest request, AuthenticationContext context)
+            throws AuthenticationFailedException {
+
+        // Google One Tap flow does not require this step.
+        if (isOneTapEnabled(request)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Passing generateOauthResponse:Google One Tap authentication flow");
+            }
+            return null;
+        }
+        return super.generateOauthResponse(request, context);
     }
 
     /**
@@ -171,13 +268,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     public List<Property> getConfigurationProperties() {
 
         List<Property> configProperties = new ArrayList<Property>();
+        int parameterCount = 0;
 
         Property clientId = new Property();
         clientId.setName(OIDCAuthenticatorConstants.CLIENT_ID);
         clientId.setDisplayName("Client ID");
         clientId.setRequired(true);
         clientId.setDescription("The client identifier value of the Google identity provider.");
-        clientId.setDisplayOrder(1);
+        clientId.setDisplayOrder(parameterCount++);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -186,14 +284,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("The client secret value of the Google identity provider.");
-        clientSecret.setDisplayOrder(2);
+        clientSecret.setDisplayOrder(parameterCount++);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("The callback URL used to obtain Google credentials.");
-        callbackUrl.setDisplayOrder(3);
+        callbackUrl.setDisplayOrder(parameterCount++);
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
@@ -201,8 +299,17 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setName("AdditionalQueryParameters");
         scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters to be sent to Google.");
-        scope.setDisplayOrder(4);
+        scope.setDisplayOrder(parameterCount++);
         configProperties.add(scope);
+
+        Property googleOneTap = new Property();
+        googleOneTap.setName(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_ENABLED);
+        googleOneTap.setDisplayName(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_DISPLAY_NAME);
+        googleOneTap.setRequired(false);
+        googleOneTap.setType("boolean");
+        googleOneTap.setDescription(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_DESCRIPTION);
+        googleOneTap.setDisplayOrder(parameterCount++);
+        configProperties.add(googleOneTap);
 
         return configProperties;
     }
@@ -299,13 +406,17 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         Map<ClaimMapping, String> claims = new HashMap<>();
 
+        // There is no need of retrieving an auth token for Google One Tap since it already has the JWT token.
+        if (token == null) {
+            return claims;
+        }
         try {
             String accessToken = token.getParam(OIDCAuthenticatorConstants.ACCESS_TOKEN);
             String url = getUserInfoEndpoint(token, authenticatorProperties);
             String json = sendRequest(url, accessToken);
 
             if (StringUtils.isBlank(json)) {
-                if(log.isDebugEnabled()) {
+                if (log.isDebugEnabled()) {
                     log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
                             " Proceeding without user claims");
                 }
@@ -334,7 +445,63 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         } catch (IOException e) {
             log.error("Communication error occurred while accessing user info endpoint", e);
         }
-
         return claims;
+    }
+
+    /**
+     * This function validates the CSRF double-sided cookie returned from Google One Tap respond.
+     * The request is considered as non-attacked request if the CSRF cookie and the parameter is equal.
+     *
+     * @param request HttpServletRequest. Authentication request with Google One Tap auth payloads.
+     * @return Integrity of the authentication request sent via Google One Tap.
+     */
+    private boolean validateCSRFCookies(HttpServletRequest request) {
+
+        if (request.getCookies() == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No valid cookie found for Google One Tap authentication.");
+            }
+            return false;
+        }
+        List<Cookie> crossRefCookies = Arrays.stream(request.getCookies())
+                .filter(cookie -> cookie.getName().equalsIgnoreCase(G_CSRF_TOKEN))
+                .collect(Collectors.toList());
+
+        if (crossRefCookies.isEmpty() || crossRefCookies.get(0) == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No CSRF cookie found. Invalid request.");
+            }
+            return false;
+        }
+        String crossRefCookieHalf = crossRefCookies.get(0).getValue();
+        String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
+
+        if (StringUtils.isEmpty(crossRefParamHalf) || StringUtils.isEmpty(crossRefCookieHalf)) {
+            if (log.isDebugEnabled()) {
+                log.debug("No CSRF parameter found. Invalid request.");
+            }
+            return false;
+        }
+        if (!crossRefParamHalf.equals(crossRefCookieHalf)) {
+            if (log.isDebugEnabled()) {
+                log.debug("CSRF validation failed for Google One Tap.");
+            }
+            return false;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Validated CSRF cookies successfully for Google One Tap.");
+        }
+        return true;
+    }
+
+    /**
+     * A utility function to check whether user has requested a Google One Tap authentication.
+     *
+     * @param request The authentication request.
+     * @return Whether Google One Tap authentication is requested or not.
+     */
+    private boolean isOneTapEnabled(HttpServletRequest request) {
+
+        return Boolean.parseBoolean(request.getParameter(ONE_TAP_ENABLED));
     }
 }
