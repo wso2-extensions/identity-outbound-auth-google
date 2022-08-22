@@ -38,6 +38,9 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This is a utility classes for Google authenticator.
+ */
 public class Utils {
 
     private static final List<String> ISSUER = Arrays.asList("https://accounts.google.com", "accounts.google.com");
@@ -55,12 +58,11 @@ public class Utils {
     public static boolean validateJWT(String idToken, String audience)
             throws AuthenticationFailedException {
 
-        // Set up a JWT processor to parse the tokens and then check their signature
-        // and validity time window (bounded by the "iat", "nbf" and "exp" claims)
+        // Setting up the processor to verify the signature.
         ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
         jwtProcessor.setJWSKeySelector(generateKeySelector(idToken));
 
-        // Process the token
+        // Process the token.
         JWTClaimsSet claimsSet;
         try {
             claimsSet = jwtProcessor.process(idToken, null);
@@ -69,7 +71,7 @@ public class Utils {
                     .JWT_PROCESS_ERROR.getCode(), e.getMessage());
         }
 
-        //Verifying the issuers and audiences
+        // Verifying the issuers and audiences.
         if (claimsSet != null && claimsSet.toJSONObject() != null && !claimsSet.toJSONObject().isEmpty()) {
             return ISSUER.contains(claimsSet.getIssuer()) && claimsSet.getAudience().contains(audience);
         }
@@ -82,7 +84,7 @@ public class Utils {
      *
      * @param idToken String The JWT token.
      * @return JWSKeySelector<SecurityContext> The generated key selector according to the hashing algorithm.
-     * @throws AuthenticationFailedException When exceptions are thrown at parsing
+     * @throws AuthenticationFailedException When exceptions are thrown at parsing.
      */
     private static JWSKeySelector<SecurityContext> generateKeySelector(String idToken)
             throws AuthenticationFailedException {
@@ -95,7 +97,7 @@ public class Utils {
             throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages.JWT_PARSE_ERROR.getCode(),
                     e.getMessage());
         }
-        //Class cast exception is handled while parsing the idToken
+        // Class cast exception is handled while parsing the idToken.
         JWSAlgorithm expectedAlgorithm = (JWSAlgorithm) jwt.getHeader().getAlgorithm();
         String jwkSourceUrl = null;
 
@@ -105,7 +107,7 @@ public class Utils {
             jwkSourceUrl = JWS_ES256_URI;
         }
 
-        if (jwkSourceUrl ==null){
+        if (jwkSourceUrl == null) {
             throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                     .INVALID_JWK_SOURCE_URL.getCode(), String.format(GoogleErrorConstants.ErrorMessages
                     .INVALID_JWK_SOURCE_URL.getMessage(), jwkSourceUrl));

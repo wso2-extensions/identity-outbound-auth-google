@@ -26,16 +26,18 @@ import java.util.Scanner;
 
 public class UtilsTest extends TestCase {
 
+    // Token is fed by a text file
     String token;
     String audience = "132708446238-d3lpgkp0t8fiko20ii217lmbdftnojei.apps.googleusercontent.com";
 
     public void setUp() throws Exception {
 
         super.setUp();
-        File file = new File("/Users/indeewariwijesiri/Documents/Servers/1.0.4/identity-outbound-auth-google/components/org.wso2.carbon.identity.application.authenticator.google/src/test/resources/input.txt");
+        File file = new File(
+                "/Users/indeewariwijesiri/Documents/Servers/1.0.4/identity-outbound-auth-google/components/org.wso2.carbon.identity.application.authenticator.google/src/test/resources/input.txt");
         Scanner sc = new Scanner(file);
 
-        if (sc.hasNextLine()){
+        if (sc.hasNextLine()) {
             token = sc.nextLine();
         }
 

@@ -75,7 +75,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     @Override
     public boolean canHandle(HttpServletRequest request) {
 
-        // Google one tap flow does not require any special parameter validation at this level
+        // Google one tap flow does not require any special parameter validation at this level.
         if (isOneTapEnabled(request)) {
             return true;
         }
