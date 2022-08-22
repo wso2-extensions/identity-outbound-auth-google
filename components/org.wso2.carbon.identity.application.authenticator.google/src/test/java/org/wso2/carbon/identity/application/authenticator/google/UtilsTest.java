@@ -34,7 +34,7 @@ public class UtilsTest extends TestCase {
 
         super.setUp();
         File file = new File(
-                "/Users/indeewariwijesiri/Documents/Servers/1.0.4/identity-outbound-auth-google/components/org.wso2.carbon.identity.application.authenticator.google/src/test/resources/input.txt");
+                "/Users/indeewariwijesiri/Documents/Servers/1.0.4/identity-outbound-auth-google/components/org.wso2.carbon.identity.application.authenticator.google/src/test/resources/token.txt");
         Scanner sc = new Scanner(file);
 
         if (sc.hasNextLine()) {
