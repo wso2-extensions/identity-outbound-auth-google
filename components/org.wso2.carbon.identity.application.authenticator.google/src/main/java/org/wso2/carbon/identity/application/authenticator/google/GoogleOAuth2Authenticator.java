@@ -84,26 +84,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     @Override
     protected String mapIdToken(AuthenticationContext context, HttpServletRequest request,
-                                OAuthClientResponse oAuthResponse) throws AuthenticationFailedException{
+                                OAuthClientResponse oAuthResponse) throws AuthenticationFailedException {
 
-        /*
-          Validity of the
-          1. CSRF cookies
-          2. JWT token
-          decide the ability of handling the authentication request in Google One Tap flow.
-         */
         if (isOneTapEnabled(request)) {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientID = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
 
-            boolean validCookies = validateCSRFCookies(request);
-            if (!validCookies) {
-                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
-                        .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
-                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
-            }
-
-            boolean validJWT = Utils.validateJWT(request.getParameter(CREDENTIAL),clientID);
+            validateCSRF(request, clientID);
+            boolean validJWT = Utils.validateJWT(request.getParameter(CREDENTIAL), clientID);
             if (!validJWT) {
                 throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                         .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
@@ -114,6 +102,33 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             return idToken;
         }
         return super.mapIdToken(context, request, oAuthResponse);
+    }
+
+    /**
+     * Validate CSRF based on configuration value for Google One Tap.
+     * Google One Tap UI appears on accounts.asg.io domain so the CSRF cookie comes under accounts.asg.io
+     * Authenticated response comes to api.asg.io domain with CSRF parameter hence CSRF cookie is blocked.
+     * Still there is no configuration from Google side to overcome this issue.
+     * Raising this issue under <a href="https://github.com/wso2/product-is/issues/14779">...</a>
+     * Once this issue is fixed, this configuration check should be removed.
+     *
+     * @param request  Authenticated request for commonauth coming from Google.
+     * @param clientID Google client ID.
+     * @throws AuthenticationFailedException Error when CSRF validation failed.
+     */
+    private void validateCSRF(HttpServletRequest request, String clientID) throws AuthenticationFailedException {
+
+        boolean validateCSRF = Boolean.parseBoolean(getAuthenticatorConfig()
+                .getParameterMap()
+                .get(GoogleOAuth2AuthenticationConstant.ENABLE_CSRF_VALIDATION_FOR_GOT));
+        if (validateCSRF) {
+            boolean validCookies = validateCSRFCookies(request);
+            if (!validCookies) {
+                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
+            }
+        }
     }
 
     @Override

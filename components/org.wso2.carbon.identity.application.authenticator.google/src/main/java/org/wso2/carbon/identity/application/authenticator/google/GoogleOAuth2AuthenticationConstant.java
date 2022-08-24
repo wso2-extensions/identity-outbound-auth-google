@@ -24,6 +24,7 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String GOOGLE_AUTHZ_ENDPOINT = "GoogleAuthzEndpoint";
     public static final String GOOGLE_TOKEN_ENDPOINT = "GoogleTokenEndpoint";
     public static final String GOOGLE_USERINFO_ENDPOINT = "GoogleUserInfoEndpoint";
+    public static final String ENABLE_CSRF_VALIDATION_FOR_GOT = "EnableCSRFValidationForGOT";
     public static final String GOOGLE_CONNECTOR_FRIENDLY_NAME = "Google";
     public static final String GOOGLE_CONNECTOR_NAME = "GoogleOIDCAuthenticator";
     public static final String GOOGLE_SCOPE = "openid email profile";
