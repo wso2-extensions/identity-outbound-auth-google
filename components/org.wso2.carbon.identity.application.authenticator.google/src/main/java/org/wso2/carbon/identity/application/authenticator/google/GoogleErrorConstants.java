@@ -23,15 +23,21 @@ package org.wso2.carbon.identity.application.authenticator.google;
  */
 public class GoogleErrorConstants {
 
+    private GoogleErrorConstants() {
+
+    }
+
     public enum ErrorMessages {
 
-        CSRF_VALIDATION_FAILED_ERROR("60000", "CSRF cookie validation failed in Google one tap. " +
-                "Authenticator : " + GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME + " Client Id : %s ."),
-        TOKEN_VALIDATION_FAILED_ERROR("60001", "JWT validation failed in Google one tap. " +
-                "Authenticator :" + GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME + " Client Id : %s ."),
+        CSRF_VALIDATION_FAILED_ERROR("60000", "CSRF cookie validation failed in Google one tap " +
+                "authenticator : " + GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME + " with client Id :" +
+                " %s ."),
+        TOKEN_VALIDATION_FAILED_ERROR("60001", "JWT validation failed in Google one tap authenticator :"
+                + GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME + " with client Id : %s ."),
         INVALID_JWK_SOURCE_URL("60002", "Invalid JWK source URL : %s ."),
         JWT_PARSE_ERROR("60003", "JWT parse error."),
         JWT_PROCESS_ERROR("60004", "JWT process error.");
+
         private final String code;
         private final String message;
 

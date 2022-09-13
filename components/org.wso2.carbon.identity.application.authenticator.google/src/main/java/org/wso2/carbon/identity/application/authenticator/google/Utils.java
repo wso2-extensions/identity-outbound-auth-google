@@ -47,6 +47,10 @@ public class Utils {
     private static final String JWS_RS256_URI = "https://www.googleapis.com/oauth2/v3/certs";
     private static final String JWS_ES256_URI = "https://www.gstatic.com/iap/verify/public_key-jwk";
 
+    private Utils() {
+
+    }
+
     /**
      * This function validates the JWT token by its content using nimbus libraries.
      *

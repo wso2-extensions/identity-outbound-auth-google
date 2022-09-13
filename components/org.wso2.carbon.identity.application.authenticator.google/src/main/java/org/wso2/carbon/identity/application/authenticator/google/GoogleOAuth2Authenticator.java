@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -478,17 +477,17 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             }
             return false;
         }
-        List<Cookie> crossRefCookies = Arrays.stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equalsIgnoreCase(G_CSRF_TOKEN))
-                .collect(Collectors.toList());
+        Cookie crossRefCookie = Arrays.stream(request.getCookies())
+                .filter(cookie -> G_CSRF_TOKEN.equalsIgnoreCase(cookie.getName()))
+                .findFirst().orElse(null);
 
-        if (crossRefCookies.isEmpty() || crossRefCookies.get(0) == null) {
+        if (crossRefCookie == null) {
             if (log.isDebugEnabled()) {
                 log.debug("No CSRF cookie found. Invalid request.");
             }
             return false;
         }
-        String crossRefCookieHalf = crossRefCookies.get(0).getValue();
+        String crossRefCookieHalf = crossRefCookie.getValue();
         String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
 
         if (StringUtils.isEmpty(crossRefParamHalf) || StringUtils.isEmpty(crossRefCookieHalf)) {
