@@ -117,9 +117,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void validateCSRF(HttpServletRequest request, String clientID) throws AuthenticationFailedException {
 
-        boolean validateCSRF = Boolean.parseBoolean(getAuthenticatorConfig()
-                .getParameterMap()
-                .get(GoogleOAuth2AuthenticationConstant.ENABLE_CSRF_VALIDATION_FOR_GOT));
+        boolean validateCSRF = true;
+        String enableCSRFValidationForGOT = getAuthenticatorConfig().getParameterMap()
+                .get(GoogleOAuth2AuthenticationConstant.ENABLE_CSRF_VALIDATION_FOR_GOT);
+
+        if (StringUtils.isNotBlank(enableCSRFValidationForGOT)) {
+            validateCSRF = Boolean.parseBoolean(enableCSRFValidationForGOT);
+        }
+
         if (validateCSRF) {
             boolean validCookies = validateCSRFCookies(request);
             if (!validCookies) {
