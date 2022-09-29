@@ -59,7 +59,7 @@ public class Utils {
      * @return boolean. Validity of the JWT token returned via Google One Tap.
      * @throws AuthenticationFailedException When JWT processor throws an exception.
      */
-    public static boolean validateJWT(String idToken, String audience)
+    public static boolean validateGoogleJWT(String idToken, String audience)
             throws AuthenticationFailedException {
 
         // Setting up the processor to verify the signature.

@@ -51,7 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
-    private static final Log log = LogFactory.getLog(GoogleOAuth2Authenticator.class);
+    private static final Log LOG = LogFactory.getLog(GoogleOAuth2Authenticator.class);
     private static final String ONE_TAP_ENABLED = "one_tap_enabled";
     private static final String CREDENTIAL = "credential";
     private static final String G_CSRF_TOKEN = "g_csrf_token";
@@ -90,7 +90,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String clientID = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
 
             validateCSRF(request, clientID);
-            boolean validJWT = Utils.validateJWT(request.getParameter(CREDENTIAL), clientID);
+            boolean validJWT = Utils.validateGoogleJWT(request.getParameter(CREDENTIAL), clientID);
             if (!validJWT) {
                 throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                         .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
@@ -152,8 +152,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         // Google One Tap flow does not require this step.
         if (isOneTapEnabled(request)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Passing mapAccessToken:Google One Tap authentication flow");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Passing mapAccessToken:Google One Tap authentication flow");
             }
             return;
         }
@@ -161,17 +161,17 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     @Override
-    protected OAuthClientResponse generateOauthResponse(HttpServletRequest request, AuthenticationContext context)
+    protected OAuthClientResponse requestAccessToken(HttpServletRequest request, AuthenticationContext context)
             throws AuthenticationFailedException {
 
         // Google One Tap flow does not require this step.
         if (isOneTapEnabled(request)) {
-            if (log.isDebugEnabled()) {
-                log.debug("Passing generateOauthResponse:Google One Tap authentication flow");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Passing generateOauthResponse:Google One Tap authentication flow");
             }
             return null;
         }
-        return super.generateOauthResponse(request, context);
+        return super.requestAccessToken(request, context);
     }
 
     /**
@@ -363,18 +363,18 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                   CLAIM_DIALECT_URI_PARAMETER)) {
                claimDialectUri = parameters.get(GoogleOAuth2AuthenticationConstant.CLAIM_DIALECT_URI_PARAMETER);
            } else {
-               if (log.isDebugEnabled()) {
-                   log.debug("Found no Parameter map for connector " + getName());
+               if (LOG.isDebugEnabled()) {
+                   LOG.debug("Found no Parameter map for connector " + getName());
                }
            }
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug("FileBasedConfigBuilder returned null AuthenticatorConfigs for the connector " +
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("FileBasedConfigBuilder returned null AuthenticatorConfigs for the connector " +
                         getName());
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Authenticator " + getName() + " is using the claim dialect uri " + claimDialectUri);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Authenticator " + getName() + " is using the claim dialect uri " + claimDialectUri);
         }
         return claimDialectUri;
     }
@@ -409,8 +409,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         claimUri += entry.getKey();
         claims.put(ClaimMapping.build(claimUri, claimUri, null, false), claimValue);
-        if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
-            log.debug("Adding claim mapping : " + claimUri + " <> " + claimUri + " : " + claimValue);
+        if (LOG.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)) {
+            LOG.debug("Adding claim mapping : " + claimUri + " <> " + claimUri + " : " + claimValue);
         }
     }
 
@@ -435,8 +435,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             String json = sendRequest(url, accessToken);
 
             if (StringUtils.isBlank(json)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Empty JSON response from user info endpoint. Unable to fetch user claims." +
                             " Proceeding without user claims");
                 }
                 return claims;
@@ -455,14 +455,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                     claims.put(ClaimMapping.build(key, key, null, false), value.toString());
                 }
 
-                if (log.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)
+                if (LOG.isDebugEnabled() && IdentityUtil.isTokenLoggable(IdentityConstants.IdentityTokens.USER_CLAIMS)
                         && jsonObject.get(key) != null) {
-                    log.debug("Adding claims from end-point data mapping : " + key + " - " + jsonObject.get(key)
+                    LOG.debug("Adding claims from end-point data mapping : " + key + " - " + jsonObject.get(key)
                             .toString());
                 }
             }
         } catch (IOException e) {
-            log.error("Communication error occurred while accessing user info endpoint", e);
+            LOG.error("Communication error occurred while accessing user info endpoint", e);
         }
         return claims;
     }
@@ -477,8 +477,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private boolean validateCSRFCookies(HttpServletRequest request) {
 
         if (request.getCookies() == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No valid cookie found for Google One Tap authentication.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No valid cookie found for Google One Tap authentication.");
             }
             return false;
         }
@@ -487,8 +487,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 .findFirst().orElse(null);
 
         if (crossRefCookie == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No CSRF cookie found. Invalid request.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No CSRF cookie found. Invalid request.");
             }
             return false;
         }
@@ -496,19 +496,19 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
 
         if (StringUtils.isEmpty(crossRefParamHalf) || StringUtils.isEmpty(crossRefCookieHalf)) {
-            if (log.isDebugEnabled()) {
-                log.debug("No CSRF parameter found. Invalid request.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No CSRF parameter found. Invalid request.");
             }
             return false;
         }
         if (!crossRefParamHalf.equals(crossRefCookieHalf)) {
-            if (log.isDebugEnabled()) {
-                log.debug("CSRF validation failed for Google One Tap.");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("CSRF validation failed for Google One Tap.");
             }
             return false;
         }
-        if (log.isDebugEnabled()) {
-            log.debug("Validated CSRF cookies successfully for Google One Tap.");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Validated CSRF cookies successfully for Google One Tap.");
         }
         return true;
     }
