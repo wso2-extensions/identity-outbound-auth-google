@@ -196,7 +196,7 @@
         <identity.outbound.auth.google.exp.version>${project.version}</identity.outbound.auth.google.exp.version>
         <carbon.identity.authenticator.oidc.imp.pkg.version.range>[5.0.0, 6.0.0)</carbon.identity.authenticator.oidc.imp.pkg.version.range>
         <!--Carbon Identity Framework Version-->
-        <carbon.identity.framework.version>5.21.45</carbon.identity.framework.version>
+        <carbon.identity.framework.version>5.25.4</carbon.identity.framework.version>
         <carbon.identity.framework.package.import.version.range>[5.14.67, 6.0.0)</carbon.identity.framework.package.import.version.range>
 
         <!-- Servlet API -->
@@ -212,7 +212,7 @@
         <oltu.version>1.0.0.wso2v3</oltu.version>
         <oltu.package.import.version.range>[1.0.0, 2.0.0)</oltu.package.import.version.range>
         <json.wso2.version>3.0.0.wso2v1</json.wso2.version>
-        <carbon.identity.authenticator.oidc.version>5.7.5</carbon.identity.authenticator.oidc.version>
+        <carbon.identity.authenticator.oidc.version>5.10.1</carbon.identity.authenticator.oidc.version>
         <net.minidev.json.imp.pkg.version.range>[2.3.0, 3.0.0)</net.minidev.json.imp.pkg.version.range>
         <nimbusds.version>7.3.0.wso2v1</nimbusds.version>
         <!--Maven Plugin Version-->
