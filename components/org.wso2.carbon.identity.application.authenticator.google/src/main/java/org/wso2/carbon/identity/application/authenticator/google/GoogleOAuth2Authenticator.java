@@ -294,7 +294,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientId.setDisplayName("Client ID");
         clientId.setRequired(true);
         clientId.setDescription("The client identifier value of the Google identity provider.");
-        clientId.setDisplayOrder(parameterCount++);
+        clientId.setDisplayOrder(++parameterCount);
         configProperties.add(clientId);
 
         Property clientSecret = new Property();
@@ -303,14 +303,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         clientSecret.setRequired(true);
         clientSecret.setConfidential(true);
         clientSecret.setDescription("The client secret value of the Google identity provider.");
-        clientSecret.setDisplayOrder(parameterCount++);
+        clientSecret.setDisplayOrder(++parameterCount);
         configProperties.add(clientSecret);
 
         Property callbackUrl = new Property();
         callbackUrl.setDisplayName("Callback URL");
         callbackUrl.setName(IdentityApplicationConstants.OAuth2.CALLBACK_URL);
         callbackUrl.setDescription("The callback URL used to obtain Google credentials.");
-        callbackUrl.setDisplayOrder(parameterCount++);
+        callbackUrl.setDisplayOrder(++parameterCount);
         configProperties.add(callbackUrl);
 
         Property scope = new Property();
@@ -318,7 +318,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         scope.setName("AdditionalQueryParameters");
         scope.setValue("scope=openid email profile");
         scope.setDescription("Additional query parameters to be sent to Google.");
-        scope.setDisplayOrder(parameterCount++);
+        scope.setDisplayOrder(++parameterCount);
         configProperties.add(scope);
 
         Property googleOneTap = new Property();
@@ -327,7 +327,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         googleOneTap.setRequired(false);
         googleOneTap.setType("boolean");
         googleOneTap.setDescription(GoogleOAuth2AuthenticationConstant.GOOGLE_ONE_TAP_DESCRIPTION);
-        googleOneTap.setDisplayOrder(parameterCount++);
+        googleOneTap.setDisplayOrder(++parameterCount);
         configProperties.add(googleOneTap);
 
         return configProperties;
