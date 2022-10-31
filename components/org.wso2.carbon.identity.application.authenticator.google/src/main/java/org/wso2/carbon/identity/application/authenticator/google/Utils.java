@@ -46,6 +46,7 @@ public class Utils {
     private static final List<String> ISSUER = Arrays.asList("https://accounts.google.com", "accounts.google.com");
     private static final String JWS_RS256_URI = "https://www.googleapis.com/oauth2/v3/certs";
     private static final String JWS_ES256_URI = "https://www.gstatic.com/iap/verify/public_key-jwk";
+    public static final String NONCE = "nonce";
 
     private Utils() {
 
@@ -54,12 +55,23 @@ public class Utils {
     /**
      * This function validates the JWT token by its content using nimbus libraries.
      *
-     * @param idToken  String. The jwt token string.
-     * @param audience String. Authenticator client ID to check validity.
+     * @param idToken            String. The jwt token string.
+     * @param audience           String. Authenticator client ID to check validity.
+     * @param state
      * @return boolean. Validity of the JWT token returned via Google One Tap.
      * @throws AuthenticationFailedException When JWT processor throws an exception.
      */
-    public static boolean validateGoogleJWT(String idToken, String audience)
+    /**
+     * This function validates the JWT token by its content using nimbus libraries.
+     *
+     * @param idToken            String. The jwt token string.
+     * @param audience           String. Authenticator client ID to check validity.
+     * @param nonce              String. The nonce value used.
+     * @param internalSubmission boolean. Whether submitted as an internal form submission or submitted by Google.
+     * @return boolean. Validity of the JWT token returned via Google One Tap.
+     * @throws AuthenticationFailedException When JWT processor throws an exception.
+     */
+    public static boolean validateGoogleJWT(String idToken, String audience, String nonce, boolean internalSubmission)
             throws AuthenticationFailedException {
 
         // Setting up the processor to verify the signature.
@@ -77,6 +89,16 @@ public class Utils {
 
         // Verifying the issuers and audiences.
         if (claimsSet != null && claimsSet.toJSONObject() != null && !claimsSet.toJSONObject().isEmpty()) {
+
+            if (internalSubmission){
+                String nonceFromGoogle = String.valueOf(claimsSet.getClaim(NONCE));
+                if (!nonce.equals(nonceFromGoogle)){
+                    throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                            .JWT_NONCE_ERROR.getCode(),
+                            GoogleErrorConstants.ErrorMessages.JWT_NONCE_ERROR.getMessage());
+                }
+            }
+
             return ISSUER.contains(claimsSet.getIssuer()) && claimsSet.getAudience().contains(audience);
         }
 
