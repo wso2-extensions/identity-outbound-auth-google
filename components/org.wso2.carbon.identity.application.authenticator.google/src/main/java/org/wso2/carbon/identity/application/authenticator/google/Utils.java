@@ -30,6 +30,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import org.apache.commons.lang.StringUtils;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 
 import java.net.MalformedURLException;
@@ -52,15 +53,6 @@ public class Utils {
 
     }
 
-    /**
-     * This function validates the JWT token by its content using nimbus libraries.
-     *
-     * @param idToken            String. The jwt token string.
-     * @param audience           String. Authenticator client ID to check validity.
-     * @param state
-     * @return boolean. Validity of the JWT token returned via Google One Tap.
-     * @throws AuthenticationFailedException When JWT processor throws an exception.
-     */
     /**
      * This function validates the JWT token by its content using nimbus libraries.
      *
@@ -90,15 +82,14 @@ public class Utils {
         // Verifying the issuers and audiences.
         if (claimsSet != null && claimsSet.toJSONObject() != null && !claimsSet.toJSONObject().isEmpty()) {
 
-            if (internalSubmission){
+            if (internalSubmission) {
                 String nonceFromGoogle = String.valueOf(claimsSet.getClaim(NONCE));
-                if (!nonce.equals(nonceFromGoogle)){
+                if (StringUtils.isEmpty(nonce) || !nonce.equals(nonceFromGoogle)) {
                     throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                             .JWT_NONCE_ERROR.getCode(),
                             GoogleErrorConstants.ErrorMessages.JWT_NONCE_ERROR.getMessage());
                 }
             }
-
             return ISSUER.contains(claimsSet.getIssuer()) && claimsSet.getAudience().contains(audience);
         }
 
