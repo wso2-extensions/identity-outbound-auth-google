@@ -56,10 +56,10 @@ public class Utils {
     /**
      * This function validates the JWT token by its content using nimbus libraries.
      *
-     * @param idToken            String. The jwt token string.
-     * @param audience           String. Authenticator client ID to check validity.
-     * @param nonce              String. The nonce value used.
-     * @param internalSubmission boolean. Whether submitted as an internal form submission or submitted by Google.
+     * @param idToken            The jwt token string.
+     * @param audience           Authenticator client ID to check validity.
+     * @param nonce              The nonce value used.
+     * @param internalSubmission Whether submitted as an internal form submission or submitted by Google.
      * @return boolean. Validity of the JWT token returned via Google One Tap.
      * @throws AuthenticationFailedException When JWT processor throws an exception.
      */
