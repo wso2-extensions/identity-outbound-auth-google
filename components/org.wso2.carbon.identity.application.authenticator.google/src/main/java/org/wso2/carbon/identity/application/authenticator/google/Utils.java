@@ -81,7 +81,6 @@ public class Utils {
 
         // Verifying the issuers and audiences.
         if (claimsSet != null && claimsSet.toJSONObject() != null && !claimsSet.toJSONObject().isEmpty()) {
-
             if (internalSubmission) {
                 String nonceFromGoogle = String.valueOf(claimsSet.getClaim(NONCE));
                 if (StringUtils.isEmpty(nonce) || !nonce.equals(nonceFromGoogle)) {
