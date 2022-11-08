@@ -55,6 +55,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private static final String ONE_TAP_ENABLED = "one_tap_enabled";
     private static final String CREDENTIAL = "credential";
     private static final String G_CSRF_TOKEN = "g_csrf_token";
+    private static final String INTERNAL_SUBMISSION = "internal_submission";
+    public static final String STATE = "state";
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -89,8 +91,17 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
             String clientID = authenticatorProperties.get(OIDCAuthenticatorConstants.CLIENT_ID);
 
-            validateCSRF(request, clientID);
-            boolean validJWT = Utils.validateGoogleJWT(request.getParameter(CREDENTIAL), clientID);
+            boolean internalSubmission = Boolean.parseBoolean(request.getParameter(INTERNAL_SUBMISSION));
+
+            // This log level will be modified to debug once Google One Tap is successfully onboarded
+            LOG.info("Validating the JWT submitted " + (internalSubmission ? "internally" : "externally"));
+
+            if (!internalSubmission) {
+                validateCSRF(request, clientID);
+            }
+
+            boolean validJWT = Utils.validateGoogleJWT(request.getParameter(CREDENTIAL), clientID,
+                    request.getParameter(STATE), internalSubmission);
             if (!validJWT) {
                 throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                         .TOKEN_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages

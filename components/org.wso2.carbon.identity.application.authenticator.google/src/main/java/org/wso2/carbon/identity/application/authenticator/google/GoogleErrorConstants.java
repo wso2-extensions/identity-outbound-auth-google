@@ -36,7 +36,8 @@ public class GoogleErrorConstants {
                 + GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME + " with client Id : %s ."),
         INVALID_JWK_SOURCE_URL("60002", "Invalid JWK source URL : %s ."),
         JWT_PARSE_ERROR("60003", "JWT parse error."),
-        JWT_PROCESS_ERROR("60004", "JWT process error.");
+        JWT_PROCESS_ERROR("60004", "JWT process error."),
+        JWT_NONCE_ERROR("60005", "Invalid nonce at JWT");
 
         private final String code;
         private final String message;
