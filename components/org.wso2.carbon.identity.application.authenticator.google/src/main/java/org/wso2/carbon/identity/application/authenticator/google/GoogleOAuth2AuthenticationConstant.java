@@ -24,10 +24,21 @@ public class GoogleOAuth2AuthenticationConstant {
     public static final String GOOGLE_AUTHZ_ENDPOINT = "GoogleAuthzEndpoint";
     public static final String GOOGLE_TOKEN_ENDPOINT = "GoogleTokenEndpoint";
     public static final String GOOGLE_USERINFO_ENDPOINT = "GoogleUserInfoEndpoint";
+    public static final String ENABLE_CSRF_VALIDATION_FOR_GOT = "EnableCSRFValidationForGOT";
     public static final String GOOGLE_CONNECTOR_FRIENDLY_NAME = "Google";
     public static final String GOOGLE_CONNECTOR_NAME = "GoogleOIDCAuthenticator";
     public static final String GOOGLE_SCOPE = "openid email profile";
     public static final String CALLBACK_URL = "Google-callback-url";
     public static final String ADDITIONAL_QUERY_PARAMS = "AdditionalQueryParameters";
     public static final String CLAIM_DIALECT_URI_PARAMETER = "ClaimDialectUri";
+
+    // Google One Tap property name.
+    public static final String GOOGLE_ONE_TAP_ENABLED = "IsGoogleOneTapEnabled";
+
+    // Google One Tap checkbox label in carbon console.
+    public static final String GOOGLE_ONE_TAP_DISPLAY_NAME = "Enable One Tap";
+
+    // Google One Tap checkbox description in carbon console.
+    public static final String GOOGLE_ONE_TAP_DESCRIPTION = "Enable Google One Tap as a sign in option.";
 }
+
