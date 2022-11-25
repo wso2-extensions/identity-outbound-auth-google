@@ -154,7 +154,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
                 validCookies = validateCSRFCookies(request);
             }
         }
-
         if (validateCSRF && !validCookies) {
             throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                     .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
