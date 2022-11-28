@@ -57,6 +57,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private static final String G_CSRF_TOKEN = "g_csrf_token";
     private static final String INTERNAL_SUBMISSION = "internal_submission";
     public static final String STATE = "state";
+    private static final String G_CSRF_VALIDATED = "g_csrf_validated";
     private String tokenEndpoint;
     private String oAuthEndpoint;
     private String userInfoURL;
@@ -128,21 +129,35 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private void validateCSRF(HttpServletRequest request, String clientID) throws AuthenticationFailedException {
 
+        boolean validCookies = false;
         boolean validateCSRF = true;
-        String enableCSRFValidationForGOT = getAuthenticatorConfig().getParameterMap()
-                .get(GoogleOAuth2AuthenticationConstant.ENABLE_CSRF_VALIDATION_FOR_GOT);
 
-        if (StringUtils.isNotBlank(enableCSRFValidationForGOT)) {
-            validateCSRF = Boolean.parseBoolean(enableCSRFValidationForGOT);
-        }
-
-        if (validateCSRF) {
-            boolean validCookies = validateCSRFCookies(request);
-            if (!validCookies) {
-                throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
-                        .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
-                        .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
+        /*
+            This will skip the CSRF validation if it is done already in another layer i.e asgardeo-website.
+            That layer should handle the exception flow itself.
+         */
+        String validatedCSRF = request.getParameter(G_CSRF_VALIDATED);
+        if (StringUtils.isNotBlank(validatedCSRF)) {
+            String crossRefParamHalf = request.getParameter(G_CSRF_TOKEN);
+            if (StringUtils.isNotBlank(crossRefParamHalf) && validatedCSRF.equals(crossRefParamHalf)) {
+                validCookies = true;
             }
+        } else {
+            String enableCSRFValidationForGOT = getAuthenticatorConfig().getParameterMap()
+                    .get(GoogleOAuth2AuthenticationConstant.ENABLE_CSRF_VALIDATION_FOR_GOT);
+
+            if (StringUtils.isNotBlank(enableCSRFValidationForGOT)) {
+                validateCSRF = Boolean.parseBoolean(enableCSRFValidationForGOT);
+            }
+
+            if (validateCSRF) {
+                validCookies = validateCSRFCookies(request);
+            }
+        }
+        if (validateCSRF && !validCookies) {
+            throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
+                    .CSRF_VALIDATION_FAILED_ERROR.getCode(), String.format(GoogleErrorConstants.ErrorMessages
+                    .CSRF_VALIDATION_FAILED_ERROR.getMessage(), clientID));
         }
     }
 
@@ -245,6 +260,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     @Override
     protected String getTokenEndpoint(Map<String, String> authenticatorProperties) {
+
         if (StringUtils.isBlank(this.tokenEndpoint)) {
             initTokenEndpoint();
         }
