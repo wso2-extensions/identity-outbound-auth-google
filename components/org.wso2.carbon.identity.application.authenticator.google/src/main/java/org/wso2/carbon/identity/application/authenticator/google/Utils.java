@@ -115,7 +115,7 @@ public class Utils {
         }
         // Class cast exception is handled while parsing the idToken.
         JWSAlgorithm expectedAlgorithm = (JWSAlgorithm) jwt.getHeader().getAlgorithm();
-        String jwkSourceUrl = null;
+        String jwkSourceUrl = StringUtils.EMPTY;
 
         if (JWSAlgorithm.RS256.equals(expectedAlgorithm)) {
             jwkSourceUrl = JWS_RS256_URI;
@@ -123,7 +123,7 @@ public class Utils {
             jwkSourceUrl = JWS_ES256_URI;
         }
 
-        if (jwkSourceUrl == null) {
+        if (StringUtils.isBlank(jwkSourceUrl)) {
             throw new AuthenticationFailedException(GoogleErrorConstants.ErrorMessages
                     .INVALID_JWK_SOURCE_URL.getCode(), String.format(GoogleErrorConstants.ErrorMessages
                     .INVALID_JWK_SOURCE_URL.getMessage(), jwkSourceUrl));

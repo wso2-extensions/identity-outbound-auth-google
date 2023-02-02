@@ -91,7 +91,6 @@
                 <artifactId>slf4j-api</artifactId>
                 <version>${org.slf4j.verison}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.wso2.orbit.com.nimbusds/nimbus-jose-jwt -->
             <dependency>
                 <groupId>org.wso2.orbit.com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>

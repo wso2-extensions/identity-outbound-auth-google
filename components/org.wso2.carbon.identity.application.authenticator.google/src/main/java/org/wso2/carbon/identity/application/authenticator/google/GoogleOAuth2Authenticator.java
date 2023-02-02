@@ -94,7 +94,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
             boolean internalSubmission = Boolean.parseBoolean(request.getParameter(INTERNAL_SUBMISSION));
 
-            // This log level will be modified to debug once Google One Tap is successfully onboarded
+            // This log level will be modified to debug once Google One Tap is successfully onboarded.
             LOG.info("Validating the JWT submitted " + (internalSubmission ? "internally" : "externally"));
 
             if (!internalSubmission) {
@@ -149,7 +149,6 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             if (StringUtils.isNotBlank(enableCSRFValidationForGOT)) {
                 validateCSRF = Boolean.parseBoolean(enableCSRFValidationForGOT);
             }
-
             if (validateCSRF) {
                 validCookies = validateCSRFCookies(request);
             }
