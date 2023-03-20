@@ -27,7 +27,7 @@
     <groupId>org.wso2.carbon.identity.outbound.auth.google</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>identity-outbound-auth-google</artifactId>
-    <version>5.2.8-SNAPSHOT</version>
+    <version>5.2.8</version>
     <packaging>pom</packaging>
     <name>WSO2 Carbon - Google Authenticator Feature Aggregator Module</name>
     <description>
@@ -39,7 +39,7 @@
         <url>https://github.com/wso2-extensions/identity-outbound-auth-google.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-google.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-google.git</connection>
-        <tag>HEAD</tag>
+        <tag>v5.2.8</tag>
     </scm>
 
 
