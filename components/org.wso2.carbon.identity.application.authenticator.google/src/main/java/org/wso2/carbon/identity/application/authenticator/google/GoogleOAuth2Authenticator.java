@@ -133,7 +133,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
         boolean validateCSRF = true;
 
         /*
-            This will skip the CSRF validation if it is done already in another layer i.e asgardeo-website.
+            This will skip the CSRF validation if it is done already in another layer (e.g. API level).
             That layer should handle the exception flow itself.
          */
         String validatedCSRF = request.getParameter(G_CSRF_VALIDATED);
