@@ -40,5 +40,13 @@ public class GoogleOAuth2AuthenticationConstant {
 
     // Google One Tap checkbox description in carbon console.
     public static final String GOOGLE_ONE_TAP_DESCRIPTION = "Enable Google One Tap as a sign in option.";
+
+    /**
+     * Constants related to log management.
+     */
+    public static class LogConstants {
+
+        public static final String OUTBOUND_AUTH_GOOGLE_SERVICE = "outbound-auth-google";
+    }
 }
 

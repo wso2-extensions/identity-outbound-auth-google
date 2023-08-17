@@ -28,14 +28,17 @@ import org.wso2.carbon.identity.application.authentication.framework.config.buil
 import org.wso2.carbon.identity.application.authentication.framework.config.model.AuthenticatorConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
+import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectAuthenticator;
 import org.wso2.carbon.identity.application.common.model.ClaimMapping;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.base.IdentityConstants;
+import org.wso2.carbon.identity.central.log.mgt.utils.LoggerUtils;
 import org.wso2.carbon.identity.core.util.IdentityCoreConstants;
 import org.wso2.carbon.identity.core.util.IdentityUtil;
+import org.wso2.carbon.utils.DiagnosticLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,6 +50,8 @@ import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+
+import static org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2AuthenticationConstant.LogConstants.OUTBOUND_AUTH_GOOGLE_SERVICE;
 
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
@@ -79,6 +84,14 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
         // Google one tap flow does not require any special parameter validation at this level.
         if (isOneTapEnabled(request)) {
+            if (LoggerUtils.isDiagnosticLogsEnabled()) {
+                DiagnosticLog.DiagnosticLogBuilder diagnosticLogBuilder = new DiagnosticLog.DiagnosticLogBuilder(
+                        getComponentId(), FrameworkConstants.LogConstants.ActionIDs.HANDLE_AUTH_STEP);
+                diagnosticLogBuilder.resultStatus(DiagnosticLog.ResultStatus.SUCCESS)
+                        .logDetailLevel(DiagnosticLog.LogDetailLevel.INTERNAL_SYSTEM)
+                        .resultMessage("Handling the Google one tap authentication flow.");
+                LoggerUtils.triggerDiagnosticLogEvent(diagnosticLogBuilder);
+            }
             return true;
         }
         return super.canHandle(request);
@@ -491,6 +504,12 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             LOG.error("Communication error occurred while accessing user info endpoint", e);
         }
         return claims;
+    }
+
+    @Override
+    protected String getComponentId() {
+
+        return OUTBOUND_AUTH_GOOGLE_SERVICE;
     }
 
     /**
