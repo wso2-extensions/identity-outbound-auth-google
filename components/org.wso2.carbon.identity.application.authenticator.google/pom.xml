@@ -85,7 +85,10 @@
                             org.osgi.framework; version="${osgi.framework.imp.pkg.version.range}",
                             org.osgi.service.component; version="${osgi.service.component.imp.pkg.version.range}",
 
+                            org.wso2.carbon.utils.*; version="${carbon.kernel.package.import.version.range}",
                             org.wso2.carbon.identity.application.authentication.framework.*;
+                            version="${carbon.identity.framework.package.import.version.range}",
+                            org.wso2.carbon.identity.central.log.mgt.utils;
                             version="${carbon.identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.framework.package.import.version.range}",
