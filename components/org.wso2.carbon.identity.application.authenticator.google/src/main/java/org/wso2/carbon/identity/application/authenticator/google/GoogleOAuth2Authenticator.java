@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2015, WSO2 LLC. (http://www.wso2.com).
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -53,6 +53,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import static org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2AuthenticationConstant.LogConstants.OUTBOUND_AUTH_GOOGLE_SERVICE;
 
+/**
+ * This class holds the Google authenticator.
+ */
 public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
     private static final long serialVersionUID = -4154255583070524018L;
@@ -68,7 +71,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     private String userInfoURL;
 
     /**
-     * Initiate tokenEndpoint
+     * Initiate tokenEndpoint.
      */
     private void initTokenEndpoint() {
 
@@ -213,7 +216,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Initiate authorization server endpoint
+     * Initiate authorization server endpoint.
      */
     private void initOAuthEndpoint() {
         this.oAuthEndpoint = getAuthenticatorConfig().getParameterMap().get(GoogleOAuth2AuthenticationConstant
@@ -243,7 +246,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
      */
     private String getUserInfoURL() {
 
-        if(userInfoURL == null) {
+        if (userInfoURL == null) {
             initUserInfoURL();
         }
 
@@ -251,7 +254,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Authorization Server Endpoint
+     * Get Authorization Server Endpoint.
      *
      * @param authenticatorProperties this is not used currently in the method
      * @return oAuthEndpoint
@@ -265,7 +268,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Token Endpoint
+     * Get Token Endpoint.
      *
      * @param authenticatorProperties this is not used currently in the method
      * @return tokenEndpoint
@@ -280,7 +283,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Scope
+     * Get Scope.
      *
      * @param scope
      * @param authenticatorProperties
@@ -294,7 +297,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
 
 
     @Override
-    protected String getAuthenticateUser(AuthenticationContext context, Map<String, Object> jsonObject, OAuthClientResponse token) {
+    protected String getAuthenticateUser(AuthenticationContext context, Map<String, Object> jsonObject,
+                                         OAuthClientResponse token) {
         if (jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL) == null) {
             return (String) jsonObject.get("sub");
         } else {
@@ -318,7 +322,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Configuration Properties
+     * Get Configuration Properties.
      *
      * @return
      */
@@ -373,7 +377,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * Get Friendly Name
+     * Get Friendly Name.
      *
      * @return
      */
@@ -383,7 +387,7 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     /**
-     * GetName
+     * Get Name.
      *
      * @return
      */
@@ -419,7 +423,8 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
     }
 
     @Override
-    protected void buildClaimMappings(Map<ClaimMapping, String> claims, Map.Entry<String, Object> entry, String separator) {
+    protected void buildClaimMappings(Map<ClaimMapping, String> claims, Map.Entry<String, Object> entry,
+                                      String separator) {
         String claimValue = null;
         String claimUri   = "";
         if (StringUtils.isBlank(separator)) {
@@ -504,6 +509,12 @@ public class GoogleOAuth2Authenticator extends OpenIDConnectAuthenticator {
             LOG.error("Communication error occurred while accessing user info endpoint", e);
         }
         return claims;
+    }
+
+    @Override
+    public String getI18nKey() {
+
+        return GoogleOAuth2AuthenticationConstant.AUTHENTICATOR_GOOGLE;
     }
 
     @Override
