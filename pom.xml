@@ -196,7 +196,7 @@
         <carbon.identity.authenticator.oidc.imp.pkg.version.range>[5.11.18, 6.0.0)</carbon.identity.authenticator.oidc.imp.pkg.version.range>
         <!--Carbon Identity Framework Version-->
         <carbon.identity.framework.version>5.25.491</carbon.identity.framework.version>
-        <carbon.identity.framework.package.import.version.range>[5.25.260, 7.0.0)</carbon.identity.framework.package.import.version.range>
+        <carbon.identity.framework.package.import.version.range>[5.25.260, 8.0.0)</carbon.identity.framework.package.import.version.range>
 
         <!-- Servlet API -->
         <imp.pkg.version.javax.servlet>[2.6.0, 3.0.0)</imp.pkg.version.javax.servlet>
