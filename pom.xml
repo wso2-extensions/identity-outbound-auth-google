@@ -205,7 +205,7 @@
         <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
-        <nimbusds.osgi.version.range>[7.3.0,8.0.0)</nimbusds.osgi.version.range>
+        <nimbusds.osgi.version.range>[9.0.0,11.0.0)</nimbusds.osgi.version.range>
 
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
         <oltu.version>1.0.0.wso2v3</oltu.version>
@@ -214,7 +214,7 @@
         <json-smart.version>2.4.7</json-smart.version>
         <carbon.identity.authenticator.oidc.version>5.11.25</carbon.identity.authenticator.oidc.version>
         <net.minidev.json.imp.pkg.version.range>[2.3.0, 3.0.0)</net.minidev.json.imp.pkg.version.range>
-        <nimbusds.version>7.3.0.wso2v1</nimbusds.version>
+        <nimbusds.version>9.37.3.wso2v1</nimbusds.version>
         <!--Maven Plugin Version-->
         <carbon.p2.plugin.version>1.5.3</carbon.p2.plugin.version>
         <maven.compiler.plugin.version>2.3.1</maven.compiler.plugin.version>
