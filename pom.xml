@@ -205,7 +205,7 @@
         <commons-lang.wso2.osgi.version.range>[2.6.0,3.0.0)</commons-lang.wso2.osgi.version.range>
         <commons-logging.osgi.version.range>[1.2,2.0)</commons-logging.osgi.version.range>
         <commons-codec.wso2.osgi.version.range>[1.4.0,2.0.0)</commons-codec.wso2.osgi.version.range>
-        <nimbusds.osgi.version.range>[9.0.0,11.0.0)</nimbusds.osgi.version.range>
+        <nimbusds.osgi.version.range>[9.0.0,10.0.0)</nimbusds.osgi.version.range>
 
         <org.slf4j.verison>1.6.1</org.slf4j.verison>
         <oltu.version>1.0.0.wso2v3</oltu.version>
