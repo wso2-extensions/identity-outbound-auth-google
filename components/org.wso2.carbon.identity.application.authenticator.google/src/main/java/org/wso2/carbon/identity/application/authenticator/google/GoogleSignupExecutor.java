@@ -19,14 +19,14 @@
 package org.wso2.carbon.identity.application.authenticator.google;
 
 import java.util.Map;
-import org.wso2.carbon.identity.application.authenticator.oidc.OIDCSocialSignupExecutor;
+import org.wso2.carbon.identity.application.authenticator.oidc.OpenIDConnectExecutor;
 import org.wso2.carbon.identity.application.common.util.IdentityApplicationConstants;
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 
 /**
  * Google Registration Executor.
  */
-public class GoogleSignupExecutor extends OIDCSocialSignupExecutor {
+public class GoogleSignupExecutor extends OpenIDConnectExecutor {
 
     private static final GoogleSignupExecutor instance = new GoogleSignupExecutor();
     private static final String GOOGLE_SIGNUP_EXECUTOR = "GoogleSignupExecutor";
