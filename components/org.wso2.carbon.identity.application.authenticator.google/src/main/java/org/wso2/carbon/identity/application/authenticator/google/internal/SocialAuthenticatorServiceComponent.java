@@ -24,7 +24,7 @@ import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2Authenticator;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleSignupExecutor;
-import org.wso2.carbon.identity.user.registration.engine.graph.Executor;
+import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 
 /**
  * @scr.component name="identity.application.authenticator.google.component"
