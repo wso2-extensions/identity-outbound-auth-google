@@ -24,7 +24,7 @@ import org.wso2.carbon.identity.application.common.util.IdentityApplicationConst
 import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticatorConstants;
 
 /**
- * Google Registration Executor.
+ * Google flow Executor.
  */
 public class GoogleSignupExecutor extends OpenIDConnectExecutor {
 
