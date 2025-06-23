@@ -26,20 +26,20 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 /**
  * Google flow Executor.
  */
-public class GoogleSignupExecutor extends OpenIDConnectExecutor {
+public class GoogleExecutor extends OpenIDConnectExecutor {
 
-    private static final GoogleSignupExecutor instance = new GoogleSignupExecutor();
-    private static final String GOOGLE_SIGNUP_EXECUTOR = "GoogleSignupExecutor";
+    private static final String GOOGLE_EXECUTOR = "GoogleExecutor";
+    private final String name;
 
-    public static GoogleSignupExecutor getInstance() {
+    public GoogleExecutor(String name) {
 
-        return instance;
+        this.name = name;
     }
 
     @Override
     public String getName() {
 
-        return GOOGLE_SIGNUP_EXECUTOR;
+        return name;
     }
 
     @Override
@@ -80,12 +80,13 @@ public class GoogleSignupExecutor extends OpenIDConnectExecutor {
     }
 
     @Override
-    public String getAuthenticateUser(Map<String, Object> jsonObject) {
+    public String getAuthenticatedUserIdentifier(Map<String, Object> jsonObject) {
 
-        if (jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL) == null) {
-            return (String) jsonObject.get("sub");
+        Object emailClaim = jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL);
+        if (emailClaim == null) {
+            return (String) jsonObject.get(OIDCAuthenticatorConstants.Claim.SUB);
         } else {
-            return (String) jsonObject.get(OIDCAuthenticatorConstants.Claim.EMAIL);
+            return (String) emailClaim;
         }
     }
 }

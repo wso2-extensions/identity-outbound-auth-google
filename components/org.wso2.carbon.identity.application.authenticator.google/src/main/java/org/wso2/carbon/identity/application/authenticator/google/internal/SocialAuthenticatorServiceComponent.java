@@ -22,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authenticator.google.GoogleExecutor;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2Authenticator;
-import org.wso2.carbon.identity.application.authenticator.google.GoogleSignupExecutor;
 import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 
 /**
@@ -42,7 +42,10 @@ public class SocialAuthenticatorServiceComponent {
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     googleAuthenticator, null);
 
-            ctxt.getBundleContext().registerService(Executor.class.getName(), GoogleSignupExecutor.getInstance(), null);
+            GoogleExecutor googleExecutor = new GoogleExecutor("GoogleExecutor");
+            ctxt.getBundleContext().registerService(Executor.class.getName(), googleExecutor, null);
+            GoogleExecutor googleSignupExecutor = new GoogleExecutor("GoogleSignupExecutor");
+            ctxt.getBundleContext().registerService(Executor.class.getName(), googleSignupExecutor , null);
 
             if (log.isDebugEnabled()) {
                 log.debug("Google Social Authenticator bundle is activated.");
