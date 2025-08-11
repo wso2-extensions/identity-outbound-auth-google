@@ -43,6 +43,12 @@ public class GoogleExecutor extends OpenIDConnectExecutor {
     }
 
     @Override
+    public String getAMRValue() {
+
+        return GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME;
+    }
+
+    @Override
     public String getAuthorizationServerEndpoint(Map<String, String> authenticatorProperties) {
 
         String authzEndpoint = authenticatorProperties.get(OIDCAuthenticatorConstants.OAUTH2_AUTHZ_URL);
