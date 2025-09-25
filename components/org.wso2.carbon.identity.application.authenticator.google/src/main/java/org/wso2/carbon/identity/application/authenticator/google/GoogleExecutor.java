@@ -29,17 +29,12 @@ import org.wso2.carbon.identity.application.authenticator.oidc.OIDCAuthenticator
 public class GoogleExecutor extends OpenIDConnectExecutor {
 
     private static final String GOOGLE_EXECUTOR = "GoogleExecutor";
-    private final String name;
 
-    public GoogleExecutor(String name) {
-
-        this.name = name;
-    }
 
     @Override
     public String getName() {
 
-        return name;
+        return GOOGLE_EXECUTOR;
     }
 
     @Override
