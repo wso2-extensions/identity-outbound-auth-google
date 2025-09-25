@@ -42,10 +42,8 @@ public class SocialAuthenticatorServiceComponent {
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     googleAuthenticator, null);
 
-            GoogleExecutor googleExecutor = new GoogleExecutor("GoogleExecutor");
+            GoogleExecutor googleExecutor = new GoogleExecutor();
             ctxt.getBundleContext().registerService(Executor.class.getName(), googleExecutor, null);
-            GoogleExecutor googleSignupExecutor = new GoogleExecutor("GoogleSignupExecutor");
-            ctxt.getBundleContext().registerService(Executor.class.getName(), googleSignupExecutor , null);
 
             if (log.isDebugEnabled()) {
                 log.debug("Google Social Authenticator bundle is activated.");
