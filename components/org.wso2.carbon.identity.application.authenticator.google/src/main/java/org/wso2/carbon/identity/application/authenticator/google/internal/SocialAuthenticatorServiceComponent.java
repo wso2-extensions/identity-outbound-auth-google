@@ -21,23 +21,37 @@ package org.wso2.carbon.identity.application.authenticator.google.internal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleExecutor;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2Authenticator;
+import org.wso2.carbon.identity.application.authenticator.google.debug.GoogleDebugProtocolProvider;
+import org.wso2.carbon.identity.debug.framework.core.DebugProtocolProvider;
 import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 
 /**
- * @scr.component name="identity.application.authenticator.google.component"
- * immediate="true"
+ * OSGi declarative service component for Google OAuth2 Authenticator.
+ * Registers the Google authenticator, executor, and debug protocol provider.
  */
+@Component(
+        name = "identity.application.authenticator.google.component",
+        immediate = true
+)
 public class SocialAuthenticatorServiceComponent {
 
     private static final Log log = LogFactory.getLog(SocialAuthenticatorServiceComponent.class);
 
+    /**
+     * Activates the Google Social Authenticator Service Component.
+     *
+     * @param ctxt The component context.
+     */
+    @Activate
     protected void activate(ComponentContext ctxt) {
+
         try {
-
-
             GoogleOAuth2Authenticator googleAuthenticator = new GoogleOAuth2Authenticator();
             ctxt.getBundleContext().registerService(ApplicationAuthenticator.class.getName(),
                     googleAuthenticator, null);
@@ -45,16 +59,33 @@ public class SocialAuthenticatorServiceComponent {
             GoogleExecutor googleExecutor = new GoogleExecutor();
             ctxt.getBundleContext().registerService(Executor.class.getName(), googleExecutor, null);
 
+            // Register Google Debug Protocol Provider.
+            GoogleDebugProtocolProvider googleDebugProvider = new GoogleDebugProtocolProvider();
+            ctxt.getBundleContext().registerService(DebugProtocolProvider.class.getName(),
+                    googleDebugProvider, null);
+            
+            if (log.isDebugEnabled()) {
+                log.debug("Google Debug Protocol Provider registered successfully for protocol: " 
+                        + googleDebugProvider.getProtocolType());
+            }
+
             if (log.isDebugEnabled()) {
                 log.debug("Google Social Authenticator bundle is activated.");
             }
 
-        } catch (Throwable e) {
-            log.fatal("Error while activating Google Social authenticator bundle.", e);
+        } catch (Exception e) {
+            log.error("Error while activating Google Social authenticator bundle: " + e.getMessage(), e);
         }
     }
 
+    /**
+     * Deactivates the Google Social Authenticator Service Component.
+     *
+     * @param ctxt The component context.
+     */
+    @Deactivate
     protected void deactivate(ComponentContext ctxt) {
+
         if (log.isDebugEnabled()) {
             log.debug("Google Social Authenticator bundle is deactivated.");
         }

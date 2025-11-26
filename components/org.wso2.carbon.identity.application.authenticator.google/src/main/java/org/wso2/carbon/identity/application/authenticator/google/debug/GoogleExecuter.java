@@ -21,16 +21,15 @@ package org.wso2.carbon.identity.application.authenticator.google.debug;
 import org.wso2.carbon.identity.application.authenticator.oidc.debug.OAuth2DebugExecuter;
 
 /**
- * Google authenticator reuses OAuth2Executer directly.
+ * Google authenticator executor for debug operations.
  * Google uses standard OAuth2/OIDC protocol for authorization URL generation,
- * so no Google-specific overrides are needed.
+ * so it reuses the OAuth2 executor implementation without additional overrides.
  * 
- * This is simply an alias for cleaner organization and future extensibility.
- * If Google-specific authorization flow is needed in the future, this class can be extended
- * with overrides while keeping the inheritance clean.
- *
+ * This class follows the naming convention expected by DebugProtocolRouter:
+ * {Protocol}Executer for protocol-specific implementations.
+ * 
  * Reuses: OAuth2 authorization URL generation, PKCE support, state management, etc.
  */
-public class GoogleDebugExecuter extends OAuth2DebugExecuter {
+public class GoogleExecuter extends OAuth2DebugExecuter {
     // No additional logic needed - Google uses standard OAuth2 protocol
 }
