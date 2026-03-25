@@ -28,7 +28,7 @@ import org.wso2.carbon.identity.application.authentication.framework.Application
 import org.wso2.carbon.identity.application.authenticator.google.GoogleExecutor;
 import org.wso2.carbon.identity.application.authenticator.google.GoogleOAuth2Authenticator;
 import org.wso2.carbon.identity.application.authenticator.google.debug.GoogleDebugProtocolProvider;
-import org.wso2.carbon.identity.debug.framework.core.DebugProtocolProvider;
+import org.wso2.carbon.identity.debug.framework.extension.DebugProtocolProvider;
 import org.wso2.carbon.identity.flow.execution.engine.graph.Executor;
 
 /**
@@ -59,15 +59,9 @@ public class SocialAuthenticatorServiceComponent {
             GoogleExecutor googleExecutor = new GoogleExecutor();
             ctxt.getBundleContext().registerService(Executor.class.getName(), googleExecutor, null);
 
-            // Register Google Debug Protocol Provider.
-            GoogleDebugProtocolProvider googleDebugProvider = new GoogleDebugProtocolProvider();
+            GoogleDebugProtocolProvider debugProtocolProvider = new GoogleDebugProtocolProvider();
             ctxt.getBundleContext().registerService(DebugProtocolProvider.class.getName(),
-                    googleDebugProvider, null);
-            
-            if (log.isDebugEnabled()) {
-                log.debug("Google Debug Protocol Provider registered successfully for protocol: " 
-                        + googleDebugProvider.getProtocolType());
-            }
+                    debugProtocolProvider, null);
 
             if (log.isDebugEnabled()) {
                 log.debug("Google Social Authenticator bundle is activated.");

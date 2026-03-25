@@ -20,7 +20,7 @@
         <groupId>org.wso2.carbon.identity.outbound.auth.google</groupId>
         <artifactId>identity-outbound-auth-google</artifactId>
         <relativePath>../../pom.xml</relativePath>
-        <version>5.2.23-SNAPSHOT</version>
+        <version>5.3.0</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -47,6 +47,16 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.outbound.auth.oidc</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.oidc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.wso2.carbon.identity.framework</groupId>
+                    <artifactId>org.wso2.carbon.identity.debug.idp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.wso2.carbon.identity.framework</groupId>
+                    <artifactId>org.wso2.carbon.identity.debug.framework</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.wso2.orbit.com.nimbusds</groupId>
@@ -59,6 +69,10 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.flow.execution.engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.debug.framework</artifactId>
         </dependency>
     </dependencies>
     <build>
@@ -96,10 +110,18 @@
                             version="${carbon.identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${carbon.identity.framework.package.import.version.range}",
-                            org.wso2.carbon.identity.application.authenticator.oidc;
+                            org.wso2.carbon.identity.application.authenticator.oidc.*;
+                            version="${carbon.identity.authenticator.oidc.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.application.authenticator.oidc.debug.*;
                             version="${carbon.identity.authenticator.oidc.imp.pkg.version.range}",
                             org.wso2.carbon.identity.core.util;
                             version="${carbon.identity.framework.package.import.version.range}",
+                            org.wso2.carbon.identity.debug.framework.core.*;
+                            version="[7.8,8.0)",
+                            org.wso2.carbon.identity.debug.framework.exception.*;
+                            version="[7.8,8.0)",
+                            org.wso2.carbon.identity.debug.framework.extension.*;
+                            version="[7.8,8.0)",
                             com.nimbusds.jose.*; version="${nimbusds.osgi.version.range}",
                             com.nimbusds.jwt.*; version="${nimbusds.osgi.version.range}",
 
