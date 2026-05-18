@@ -74,6 +74,10 @@
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.debug.framework</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.debug.idp</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -118,9 +122,13 @@
                             version="${carbon.identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.debug.framework.core.*;
                             version="[7.8,8.0)",
+                            org.wso2.carbon.identity.debug.framework.model.*;
+                            version="[7.8,8.0)",
                             org.wso2.carbon.identity.debug.framework.exception.*;
                             version="[7.8,8.0)",
                             org.wso2.carbon.identity.debug.framework.extension.*;
+                            version="[7.8,8.0)",
+                            org.wso2.carbon.identity.debug.idp.core.*;
                             version="[7.8,8.0)",
                             com.nimbusds.jose.*; version="${nimbusds.osgi.version.range}",
                             com.nimbusds.jwt.*; version="${nimbusds.osgi.version.range}",
