@@ -36,7 +36,6 @@ public class GoogleDebugProtocolProvider implements DebugProtocolProvider {
     private final DebugExecutor executor = new OIDCDebugExecutor();
     private final DebugProcessor processor = new OIDCDebugProcessor();
 
-
     @Override
     public String getProtocolType() {
 
@@ -59,11 +58,5 @@ public class GoogleDebugProtocolProvider implements DebugProtocolProvider {
     public DebugProcessor getProcessor() {
 
         return processor;
-    }
-
-    @Override
-    public boolean supports(String protocolType) {
-
-        return PROTOCOL_TYPE.equalsIgnoreCase(protocolType);
     }
 }

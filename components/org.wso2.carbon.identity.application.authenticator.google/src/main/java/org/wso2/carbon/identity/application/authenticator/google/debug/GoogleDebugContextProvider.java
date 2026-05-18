@@ -31,14 +31,15 @@ import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.core.util.IdentityTenantUtil;
 import org.wso2.carbon.identity.debug.framework.core.DebugContextProvider;
 import org.wso2.carbon.identity.debug.framework.exception.ContextResolutionException;
+import org.wso2.carbon.identity.debug.framework.model.DebugContext;
 import org.wso2.carbon.idp.mgt.IdentityProviderManagementException;
 import org.wso2.carbon.idp.mgt.IdentityProviderManager;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Google-specific debug context provider.
@@ -47,33 +48,14 @@ import javax.servlet.http.HttpServletRequest;
 public class GoogleDebugContextProvider extends DebugContextProvider {
 
     private static final Log LOG = LogFactory.getLog(GoogleDebugContextProvider.class);
+    private static final String CONNECTION_ID_KEY = "connectionId";
+    private static final String RESOURCE_TYPE_KEY = "resourceType";
 
     @Override
-    public Map<String, Object> resolveContext(HttpServletRequest request) throws ContextResolutionException {
+    public DebugContext resolveContext(Map<String, Object> params) throws ContextResolutionException {
 
-        if (request == null) {
-            throw new ContextResolutionException("HTTP request is null");
-        }
-
-        String idpId = request.getParameter("idpId");
-        String authenticatorName = request.getParameter("authenticator");
-
-        if (StringUtils.isEmpty(idpId)) {
-            throw new ContextResolutionException("IdP ID parameter is missing");
-        }
-        if (!idpId.matches("[a-zA-Z0-9._-]+")) {
-            throw new ContextResolutionException("Invalid IdP ID format - contains invalid characters");
-        }
-        if (StringUtils.isNotEmpty(authenticatorName) && !authenticatorName.matches("[a-zA-Z0-9._-]+")) {
-            throw new ContextResolutionException("Invalid authenticator name format - contains invalid characters");
-        }
-
-        return resolveContext(idpId, authenticatorName);
-    }
-
-    @Override
-    public Map<String, Object> resolveContext(String connectionId, String resourceType)
-            throws ContextResolutionException {
+        String connectionId = (String) params.get(CONNECTION_ID_KEY);
+        String resourceType = (String) params.get(RESOURCE_TYPE_KEY);
 
         if (StringUtils.isEmpty(connectionId)) {
             throw new ContextResolutionException("IdP ID is null or empty");
@@ -96,7 +78,7 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
             extractGoogleParameters(authenticatorConfig, context);
             populateAuthenticatorContextProperties(context, authenticatorConfig);
             populateDebugSessionProperties(context, tenantDomain);
-            return context;
+            return DebugContext.buildFromMap(context);
         } catch (ContextResolutionException e) {
             LOG.error("Error resolving Google debug context: " + e.getMessage(), e);
             throw e;
@@ -108,8 +90,9 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
     }
 
     @Override
-    public boolean canResolve(String connectionId) {
+    public boolean canHandle(Map<String, Object> params) {
 
+        String connectionId = (String) params.get(CONNECTION_ID_KEY);
         try {
             if (StringUtils.isEmpty(connectionId)) {
                 return false;
@@ -119,7 +102,7 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
             return idp != null && idp.isEnable() && findGoogleAuthenticatorConfig(idp, null) != null;
         } catch (Exception e) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Error checking if GoogleDebugContextProvider can resolve IdP: " + e.getMessage(), e);
+                LOG.debug("Error checking if GoogleDebugContextProvider can handle IdP: " + connectionId, e);
             }
             return false;
         }
@@ -128,12 +111,13 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
     public static String extractScope(Map<String, String> authenticatorProperties) {
 
         String scope = OIDCConfigurationExtractor.findPropertyValue(
-                authenticatorProperties, OIDCConfigurationExtractor.SCOPE_PROPERTY_NAMES);
+                authenticatorProperties, OIDCConfigurationExtractor.getScopePropertyNames());
         if (StringUtils.isNotEmpty(scope)) {
             return scope;
         }
 
-        String additionalParams = authenticatorProperties.get(GoogleOAuth2AuthenticationConstant.ADDITIONAL_QUERY_PARAMS);
+        String additionalParams = authenticatorProperties.get(
+                GoogleOAuth2AuthenticationConstant.ADDITIONAL_QUERY_PARAMS);
         if (StringUtils.isNotEmpty(additionalParams)) {
             scope = extractScopeFromQueryParams(additionalParams);
             if (StringUtils.isNotEmpty(scope)) {
@@ -154,7 +138,7 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
             String[] params = queryParams.split("&");
             for (String param : params) {
                 if (param.startsWith("scope=")) {
-                    return java.net.URLDecoder.decode(param.substring("scope=".length()), "UTF-8");
+                    return URLDecoder.decode(param.substring("scope=".length()), StandardCharsets.UTF_8.name());
                 }
             }
         } catch (Exception e) {
@@ -194,13 +178,14 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
     private void populateIdpContextProperties(Map<String, Object> context, IdentityProvider idp) {
 
         context.put(OIDCDebugConstants.DEBUG_IDP_NAME, idp.getIdentityProviderName());
-        context.put("DEBUG_IDP_RESOURCE_ID",
+        context.put(OIDCDebugConstants.DEBUG_IDP_RESOURCE_ID,
                 StringUtils.defaultIfEmpty(idp.getResourceId(), idp.getIdentityProviderName()));
-        context.put("DEBUG_IDP_DESCRIPTION", idp.getIdentityProviderDescription());
+        context.put(OIDCDebugConstants.DEBUG_IDP_DESCRIPTION, idp.getIdentityProviderDescription());
         context.put(OIDCDebugConstants.IDP_CONFIG, idp);
     }
 
-    private FederatedAuthenticatorConfig findGoogleAuthenticatorConfig(IdentityProvider idp, String authenticatorName) {
+    private FederatedAuthenticatorConfig findGoogleAuthenticatorConfig(IdentityProvider idp,
+            String authenticatorName) {
 
         FederatedAuthenticatorConfig[] configs = idp.getFederatedAuthenticatorConfigs();
         if (configs == null || configs.length == 0) {
@@ -219,8 +204,6 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
             if (config == null || !config.isEnabled() || StringUtils.isEmpty(config.getName())) {
                 continue;
             }
-
-            // Use the primary Google OAuth2 authenticator constant.
             if (GoogleOAuth2AuthenticationConstant.GOOGLE_CONNECTOR_NAME.equals(config.getName())) {
                 return config;
             }
@@ -241,7 +224,7 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
         GoogleExecutor executor = new GoogleExecutor();
 
         String clientId = OIDCConfigurationExtractor.findPropertyValue(
-                propertyMap, OIDCConfigurationExtractor.CLIENT_ID_PROPERTY_NAMES);
+                propertyMap, OIDCConfigurationExtractor.getClientIdPropertyNames());
         if (StringUtils.isEmpty(clientId)) {
             throw new ContextResolutionException("Client ID not found in authenticator configuration");
         }
@@ -259,16 +242,10 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
         }
         context.put(OIDCDebugConstants.TOKEN_ENDPOINT, tokenEndpoint);
 
-        String scope = extractScope(propertyMap);
-        context.put(OIDCDebugConstants.IDP_SCOPE, scope);
-
-        String userInfoEndpoint = executor.getUserInfoEndpoint(propertyMap);
-        if (StringUtils.isNotEmpty(userInfoEndpoint)) {
-            context.put(OIDCDebugConstants.USERINFO_ENDPOINT, userInfoEndpoint);
-        }
+        context.put(OIDCDebugConstants.IDP_SCOPE, extractScope(propertyMap));
 
         String clientSecret = OIDCConfigurationExtractor.findPropertyValue(
-                propertyMap, OIDCConfigurationExtractor.CLIENT_SECRET_PROPERTY_NAMES);
+                propertyMap, OIDCConfigurationExtractor.getClientSecretPropertyNames());
         if (StringUtils.isNotEmpty(clientSecret)) {
             context.put(OIDCDebugConstants.CLIENT_SECRET, clientSecret);
         }
@@ -289,9 +266,9 @@ public class GoogleDebugContextProvider extends DebugContextProvider {
     private void populateDebugSessionProperties(Map<String, Object> context, String tenantDomain) {
 
         context.put(OIDCDebugConstants.IS_DEBUG_FLOW, Boolean.TRUE);
-        context.put(OIDCDebugConstants.DEBUG_SESSION_ID, UUID.randomUUID().toString());
+        context.put(OIDCDebugConstants.DEBUG_ID, "debug-" + UUID.randomUUID());
         context.put(OIDCDebugConstants.DEBUG_TIMESTAMP, System.currentTimeMillis());
         context.put(OIDCDebugConstants.DEBUG_TENANT_DOMAIN, tenantDomain);
-        context.put(OIDCDebugConstants.DEBUG_CONTEXT_ID, "debug-" + UUID.randomUUID());
+        context.put(OIDCDebugConstants.CONTEXT_PROTOCOL, OIDCDebugConstants.PROTOCOL_TYPE);
     }
 }
